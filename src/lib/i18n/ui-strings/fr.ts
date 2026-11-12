@@ -2130,6 +2130,7 @@ export const FR: UIStrings = {
     PROVIDER_KEY_INVALID: "La clé de votre fournisseur d’IA n’est plus valide. Mettez-la à jour dans les Paramètres.",
     MODEL_NO_QUICK_SUGGEST: "Ce modèle ne peut pas faire de suggestions rapides. Choisissez un autre modèle dans les Paramètres.",
     AI_RESPONSE_TRUNCATED: "La réponse a été coupée avant de pouvoir être utilisée. Sélectionnez moins de texte et réessayez.",
+    CUSTOM_PROVIDER_LIMIT: "Vous pouvez enregistrer jusqu’à 10 fournisseurs personnalisés. Supprimez-en un pour en ajouter un autre.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Votre clé API {provider} est invalide ou a été révoquée. Vérifiez-la dans les Paramètres.",

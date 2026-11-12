@@ -2130,6 +2130,7 @@ export const ES: UIStrings = {
     PROVIDER_KEY_INVALID: "La clave de su proveedor de IA ya no es válida. Actualícela en Configuración.",
     MODEL_NO_QUICK_SUGGEST: "Este modelo no puede hacer sugerencias rápidas. Elija otro modelo en Configuración.",
     AI_RESPONSE_TRUNCATED: "La respuesta se cortó antes de poder usarse. Seleccione menos texto e inténtelo de nuevo.",
+    CUSTOM_PROVIDER_LIMIT: "Puede guardar hasta 10 proveedores personalizados. Elimine uno para añadir otro.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Su clave de API de {provider} no es válida o ha sido revocada. Revísela en Configuración.",

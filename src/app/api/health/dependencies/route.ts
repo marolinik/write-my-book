@@ -43,10 +43,9 @@ export async function GET(req: NextRequest) {
   const trust = trustOf(req);
   const readiness = await checkDependencies();
 
-  // Public + production: verdict yes/no, no host/port echoes, no env map.
-  const hideDetail = trust === "public" && process.env.NODE_ENV === "production";
-
-  const body = hideDetail
+  // P2-26: a public caller gets the verdict, names and statuses only, in
+  // every environment. A trusted caller gets each failure's first line.
+  const body = trust === "public"
     ? {
         ok: readiness.ok,
         status: readiness.status,
@@ -58,7 +57,13 @@ export async function GET(req: NextRequest) {
         })),
         detail: "hidden",
       }
-    : readiness;
+    : {
+        ...readiness,
+        dependencies: readiness.dependencies.map(({ detail, ...dep }) => ({
+          ...dep,
+          message: detail ?? dep.message,
+        })),
+      };
 
   return NextResponse.json(body, { status: readiness.ok ? 200 : 503 });
 }

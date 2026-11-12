@@ -2130,6 +2130,7 @@ export const ZH: UIStrings = {
     PROVIDER_KEY_INVALID: "您的 AI 服务商密钥已失效。请在设置中更新。",
     MODEL_NO_QUICK_SUGGEST: "此模型无法提供快速建议。请在设置中选择其他模型。",
     AI_RESPONSE_TRUNCATED: "回答在可用之前被截断了。请选择更少的文本后重试。",
+    CUSTOM_PROVIDER_LIMIT: "最多可保存 10 个自定义提供商。请先删除一个再添加。",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "您的 {provider} API 密钥无效或已被撤销。请在设置中检查。",

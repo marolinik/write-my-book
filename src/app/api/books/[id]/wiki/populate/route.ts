@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth";
+import { requireUserOrResponse } from "@/lib/api/require-user-response";
 import { denyIfOverQuota } from "@/lib/billing/ai-route-gate";
 import { estimateCost } from "@/lib/cost";
 import { db } from "@/lib/db";
@@ -56,7 +56,9 @@ export async function POST(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await requireUser();
+  const auth = await requireUserOrResponse();
+  if (auth.response) return auth.response;
+  const user = auth.user;
   // P2-5: the same plan gate as an agent session, before any model call.
   const denied = await denyIfOverQuota(user.id);
   if (denied) return denied;

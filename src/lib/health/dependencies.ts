@@ -12,7 +12,13 @@ export interface DependencyCheckResult {
   status: DependencyStatus;
   required: boolean;
   latencyMs: number;
+  /** A classification only ("ok", "check failed", "check timed out"): safe for any caller. */
   message: string;
+  /**
+   * P2-26: the cause's first line, for trusted callers (HEALTH_TOKEN or the
+   * loopback orchestrator) only. The route strips it for everyone else.
+   */
+  detail?: string;
 }
 
 export interface DependencyReadinessResult {
@@ -30,15 +36,19 @@ function nowMs() {
   return Date.now();
 }
 
-function sanitizeMessage(error: unknown): string {
+/**
+ * H3: raw driver errors echo internal host:port pairs ("connect ECONNREFUSED
+ * 10.0.x.y:6379"). The message is a classification for any caller; the
+ * cause's first line goes to the server log and, as `detail`, to trusted
+ * callers only (P2-26: the trust tier decides, not NODE_ENV).
+ */
+function classify(error: unknown): string {
+  if (error instanceof Error && /timed out/i.test(error.message)) return "check timed out";
+  return "check failed";
+}
+
+function firstLine(error: unknown): string {
   if (!(error instanceof Error) || !error.message) return "Dependency check failed";
-  if (process.env.NODE_ENV === "production") {
-    // H3: raw driver errors echo internal host:port pairs ("connect
-    // ECONNREFUSED 10.0.x.y:6379"). Untrusted production callers see
-    // classification only; operators get first lines in the server logs
-    // and, with HEALTH_TOKEN, in the authorized response path.
-    return /timed out/i.test(error.message) ? "check timed out" : "check failed";
-  }
   return error.message.split("\n")[0].slice(0, 180);
 }
 
@@ -72,12 +82,14 @@ async function runCheck(
       message: "ok",
     };
   } catch (error) {
+    console.error(`[health] ${name} check failed:`, firstLine(error));
     return {
       name,
       required,
       status: required ? "error" : "degraded",
       latencyMs: nowMs() - started,
-      message: sanitizeMessage(error),
+      message: classify(error),
+      detail: firstLine(error),
     };
   }
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
+import { legacyRouteErrorResponse } from "@/lib/api/legacy-route-errors";
 import { denyIfOverQuota } from "@/lib/billing/ai-route-gate";
 import { db } from "@/lib/db";
 import { decryptValidatedKeys } from "@/lib/llm/decrypt-validated-keys";
@@ -159,11 +160,7 @@ Rules:
   } catch (error: unknown) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("[Character Chat] Error:", message);
-    return NextResponse.json(
-      { error: `Character chat failed: ${message}` },
-      { status: 500 }
-    );
+    // P2-8: the cause stays in the server log; the body is a fixed sentence.
+    return legacyRouteErrorResponse(error, "[Character Chat]", "Character chat failed");
   }
 }

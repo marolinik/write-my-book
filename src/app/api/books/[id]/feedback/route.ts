@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { z } from "zod";
 import { inferPreferenceFromNegativeFeedback } from "@/lib/agents/writer-memory";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { legacyRouteErrorResponse } from "@/lib/api/legacy-route-errors";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 
 export const dynamic = "force-dynamic";
@@ -77,9 +78,6 @@ export async function POST(
     if (invalidJson) return invalidJson;
     const zodRes = zodErrorResponse(err);
     if (zodRes) return zodRes;
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to record feedback" },
-      { status: 500 }
-    );
+    return legacyRouteErrorResponse(err, "POST /api/books/:id/feedback", "Failed to record feedback");
   }
 }

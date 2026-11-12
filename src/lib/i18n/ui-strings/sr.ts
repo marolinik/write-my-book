@@ -2130,6 +2130,7 @@ export const SR: UIStrings = {
     PROVIDER_KEY_INVALID: "Ključ tvog AI provajdera više nije ispravan. Ažuriraj ga u Podešavanjima.",
     MODEL_NO_QUICK_SUGGEST: "Ovaj model ne može da daje brze predloge. Izaberi drugi model u Podešavanjima.",
     AI_RESPONSE_TRUNCATED: "Odgovor je odsečen pre nego što je mogao da se iskoristi. Izaberi manje teksta i pokušaj ponovo.",
+    CUSTOM_PROVIDER_LIMIT: "Možeš da sačuvaš najviše 10 prilagođenih provajdera. Obriši jedan da bi dodao novi.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Tvoj {provider} API ključ nije ispravan ili je opozvan. Proveri ga u Podešavanjima.",

@@ -299,7 +299,8 @@ export const replaceRequestSchema = z.object({
   find: z.string().min(2).max(200),
   replace: z.string().max(200),
   // Absent = every chapter in the book; present = only these chapter ids.
-  chapterIds: z.array(z.string()).optional(),
+  // P2-13: chapter ids are uuids and a book has at most 999 chapters.
+  chapterIds: z.array(z.string().uuid()).max(999).optional(),
   caseSensitive: z.boolean().optional().default(false),
   // D-189: absent = substring matching, preserving every existing caller.
   wholeWord: z.boolean().optional().default(false),
@@ -723,4 +724,33 @@ export const bookModelOverridesSchema = z.object({
 export const modelSelectionQuerySchema = z.object({
   bookId: z.string(),
   workflowId: z.string(),
+});
+
+// ─── Insights (P2-10) ─────────────────────────────────────────
+// Insight text is injected into every agent prompt, so it is bounded here.
+
+export const INSIGHT_TYPES = ["WARNING", "SUGGESTION", "FLAG", "CONSTRAINT"] as const;
+
+export const createInsightSchema = z.object({
+  sourceAgentType: z.string().trim().min(1).max(50),
+  insightType: z.enum(INSIGHT_TYPES),
+  domain: z.string().trim().min(1).max(50),
+  summary: z.string().trim().min(1).max(500),
+  detail: z.string().trim().min(1).max(5000),
+  sourceSessionId: z.string().max(100).optional(),
+  targetAgents: z.array(z.string().max(50)).max(20).optional(),
+  chapterScope: z.array(z.number().int().min(1).max(999)).max(200).optional(),
+  expiresAt: z.coerce.date().optional(),
+});
+
+export const insightsQuerySchema = z.object({
+  status: z.string().max(20).optional().default("active"),
+  domain: z.string().max(50).optional(),
+  limit: z.coerce.number().int().min(1).max(200).optional().default(50),
+  offset: z.coerce.number().int().min(0).optional().default(0),
+});
+
+export const updateInsightSchema = z.object({
+  action: z.enum(["resolve", "dismiss"]),
+  sessionId: z.string().max(100).optional(),
 });

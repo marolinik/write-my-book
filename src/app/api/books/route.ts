@@ -37,6 +37,22 @@ export async function GET() {
 }
 
 /** POST /api/books — create a new book. */
+/**
+ * P2-11: two creates racing past the duplicate-name check, or a book number
+ * already taken in the series (the UI sends the number the writer typed),
+ * trip a unique constraint. That is the writer's conflict to resolve, not a
+ * server fault; `meta.target` says which one.
+ */
+function bookCreateConflict(error: unknown): NextResponse | null {
+  const err = error as { code?: string; meta?: { target?: unknown } } | null;
+  if (err?.code !== "P2002") return null;
+  const target = JSON.stringify(err.meta?.target ?? "");
+  const message = /book_?number/i.test(target)
+    ? "This series already has a book with that number"
+    : "A book with this name already exists";
+  return NextResponse.json({ error: message, code: "CONFLICT" }, { status: 409 });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const user = await requireUser();
@@ -77,7 +93,10 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const book = await db.book.create({
+    // P2-11: the row, its settings, Chapter 1 and the prefix land together or
+    // not at all; a half-made book (no settings, no Chapter 1) cannot remain.
+    const { updatedBook, firstChapter } = await db.$transaction(async (tx) => {
+    const book = await tx.book.create({
       data: {
         userId: user.id,
         name: data.name,
@@ -99,14 +118,14 @@ export async function POST(req: NextRequest) {
       : generateS3Prefix(user.id, book.id);
 
     // Create default settings
-    await db.bookSettings.create({
+    await tx.bookSettings.create({
       data: { bookId: book.id },
     });
 
     // Write-first onboarding: create an empty Chapter 1 so the writer lands
     // directly in a blank editor. No CHAPTER_CONTENT document yet — that is
     // created on first save.
-    const firstChapter = await db.chapter.create({
+    const firstChapter = await tx.chapter.create({
       data: { bookId: book.id, actNumber: 1, chapterNumber: 1, title: null },
     });
 
@@ -114,9 +133,11 @@ export async function POST(req: NextRequest) {
     // it alone here started EVERY in-product book off-by-one (measured 1 vs 2,
     // 7 vs 8 on real books) and every later +1/-1 delta rode the wrong base.
     // Folded into the s3Prefix update so book creation still writes once.
-    const updatedBook = await db.book.update({
+    const updatedBook = await tx.book.update({
       where: { id: book.id },
       data: { s3Prefix, chapterCount: 1 },
+    });
+    return { updatedBook, firstChapter };
     });
 
     return NextResponse.json(
@@ -131,6 +152,8 @@ export async function POST(req: NextRequest) {
     }
     const zodRes = zodErrorResponse(error);
     if (zodRes) return zodRes;
+    const conflict = bookCreateConflict(error);
+    if (conflict) return conflict;
     console.error("POST /api/books error:", error);
     return NextResponse.json(
       { error: "Failed to create book" },

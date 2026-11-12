@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
+import { legacyRouteErrorResponse } from "@/lib/api/legacy-route-errors";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string }> };
@@ -40,10 +41,7 @@ export async function PATCH(req: NextRequest, { params }: RouteParams) {
     if (invalidJson) return invalidJson;
     const zodRes = zodErrorResponse(err);
     if (zodRes) return zodRes;
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to update" },
-      { status: 500 }
-    );
+    return legacyRouteErrorResponse(err, "PATCH /api/memory/:id", "Failed to update");
   }
 }
 
@@ -61,9 +59,6 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Failed to delete" },
-      { status: 500 }
-    );
+    return legacyRouteErrorResponse(err, "DELETE /api/memory/:id", "Failed to delete");
   }
 }

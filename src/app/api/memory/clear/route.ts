@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { clearBookMemory } from "@/lib/vector";
 import { memoryClearSchema } from "@/lib/validation";
+import { legacyRouteErrorResponse } from "@/lib/api/legacy-route-errors";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 export async function POST(request: NextRequest) {
@@ -42,10 +43,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;
-    console.error("[memory/clear] Error:", error);
-    return NextResponse.json(
-      { error: "Failed to clear memory" },
-      { status: 500 }
-    );
+    return legacyRouteErrorResponse(error, "[memory/clear]", "Failed to clear memory");
   }
 }

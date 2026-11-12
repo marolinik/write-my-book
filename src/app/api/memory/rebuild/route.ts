@@ -5,6 +5,7 @@ import { rebuildBookIndex } from "@/lib/vector";
 import { isEmbeddingAvailable } from "@/lib/vector/embeddings";
 import { isProseIndexingPausedForUser } from "@/lib/vector/indexing-gate";
 import { memoryRebuildSchema } from "@/lib/validation";
+import { legacyRouteErrorResponse } from "@/lib/api/legacy-route-errors";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 
 export async function POST(request: NextRequest) {
@@ -69,10 +70,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;
-    console.error("[memory/rebuild] Error:", error);
-    return NextResponse.json(
-      { error: "Failed to rebuild memory index" },
-      { status: 500 }
-    );
+    return legacyRouteErrorResponse(error, "[memory/rebuild]", "Failed to rebuild memory index");
   }
 }

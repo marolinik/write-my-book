@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth";
+import { requireUserOrResponse } from "@/lib/api/require-user-response";
 import { db } from "@/lib/db";
 import { computeStreaks, getDailyWordCounts } from "@/lib/writing-stats";
 
@@ -10,7 +10,9 @@ export const dynamic = "force-dynamic";
  * Returns the user's year-in-writing statistics for the current year.
  */
 export async function GET() {
-  const user = await requireUser();
+  const auth = await requireUserOrResponse();
+  if (auth.response) return auth.response;
+  const user = auth.user;
   const year = new Date().getFullYear();
   const yearStart = new Date(year, 0, 1);
   const yearEnd = new Date(year + 1, 0, 1);

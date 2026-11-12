@@ -8,6 +8,7 @@ import {
   getEmbeddingCosts,
 } from "@/lib/vector";
 import { isProseIndexingPausedForUser } from "@/lib/vector/indexing-gate";
+import { legacyRouteErrorResponse } from "@/lib/api/legacy-route-errors";
 
 export async function GET(request: NextRequest) {
   try {
@@ -67,10 +68,6 @@ export async function GET(request: NextRequest) {
       indexingPaused,
     });
   } catch (error) {
-    console.error("[memory/stats] Error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch memory stats" },
-      { status: 500 }
-    );
+    return legacyRouteErrorResponse(error, "[memory/stats]", "Failed to fetch memory stats");
   }
 }

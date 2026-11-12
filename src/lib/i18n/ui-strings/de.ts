@@ -2130,6 +2130,7 @@ export const DE: UIStrings = {
     PROVIDER_KEY_INVALID: "Der Schlüssel Ihres KI-Anbieters ist nicht mehr gültig. Aktualisieren Sie ihn in den Einstellungen.",
     MODEL_NO_QUICK_SUGGEST: "Dieses Modell kann keine schnellen Vorschläge machen. Wählen Sie in den Einstellungen ein anderes Modell.",
     AI_RESPONSE_TRUNCATED: "Die Antwort wurde abgeschnitten, bevor sie verwendet werden konnte. Markieren Sie weniger Text und versuchen Sie es erneut.",
+    CUSTOM_PROVIDER_LIMIT: "Sie können bis zu 10 eigene Anbieter speichern. Löschen Sie einen, um einen neuen hinzuzufügen.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Ihr {provider}-API-Schlüssel ist ungültig oder wurde widerrufen. Prüfen Sie ihn in den Einstellungen.",

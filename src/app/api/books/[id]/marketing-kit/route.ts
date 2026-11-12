@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parseMarketingKit } from "@/lib/marketing/marketing-kit";
-import { requireUser } from "@/lib/auth";
+import { requireUserOrResponse } from "@/lib/api/require-user-response";
 import { denyIfOverQuota } from "@/lib/billing/ai-route-gate";
 import { db } from "@/lib/db";
 import { decryptValidatedKeys } from "@/lib/llm/decrypt-validated-keys";
@@ -20,7 +20,9 @@ export const dynamic = "force-dynamic";
  * Returns the last generated marketing kit, or null if none exists.
  */
 export async function GET(_req: NextRequest, { params }: RouteParams) {
-  const user = await requireUser();
+  const auth = await requireUserOrResponse();
+  if (auth.response) return auth.response;
+  const user = auth.user;
   const { id: bookId } = await params;
 
   const book = await db.book.findFirst({
@@ -50,7 +52,9 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
  * Generates a marketing kit from the manuscript using the user's LLM.
  */
 export async function POST(_req: NextRequest, { params }: RouteParams) {
-  const user = await requireUser();
+  const auth = await requireUserOrResponse();
+  if (auth.response) return auth.response;
+  const user = auth.user;
   // P2-5: the same plan gate as an agent session, before any model call.
   const denied = await denyIfOverQuota(user.id);
   if (denied) return denied;

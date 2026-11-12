@@ -37,6 +37,7 @@ export const API_ERROR_CODES = [
   "PROVIDER_KEY_INVALID",
   "MODEL_NO_QUICK_SUGGEST",
   "AI_RESPONSE_TRUNCATED",
+  "CUSTOM_PROVIDER_LIMIT",
 ] as const;
 
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];

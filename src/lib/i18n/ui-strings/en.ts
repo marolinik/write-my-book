@@ -2141,6 +2141,7 @@ export const EN: UIStrings = {
     PROVIDER_KEY_INVALID: "Your AI provider key is no longer valid. Update it in Settings.",
     MODEL_NO_QUICK_SUGGEST: "This model can't make quick suggestions. Choose another model in Settings.",
     AI_RESPONSE_TRUNCATED: "The answer was cut off before it could be used. Select less text and try again.",
+    CUSTOM_PROVIDER_LIMIT: "You can save up to 10 custom providers. Delete one to add another.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Your {provider} API key is invalid or has been revoked. Check it in Settings.",

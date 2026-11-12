@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth";
+import { requireUserOrResponse } from "@/lib/api/require-user-response";
 import { db } from "@/lib/db";
 import { buildRadarAlerts } from "@/lib/radar/alerts";
 import { localeFor } from "@/lib/i18n/ui-strings";
@@ -18,7 +18,9 @@ export async function GET(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const user = await requireUser();
+  const auth = await requireUserOrResponse();
+  if (auth.response) return auth.response;
+  const user = auth.user;
   const { id: bookId } = await params;
 
   const book = await db.book.findFirst({
