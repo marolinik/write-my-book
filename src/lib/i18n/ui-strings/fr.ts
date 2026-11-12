@@ -2131,6 +2131,7 @@ export const FR: UIStrings = {
     MODEL_NO_QUICK_SUGGEST: "Ce modèle ne peut pas faire de suggestions rapides. Choisissez un autre modèle dans les Paramètres.",
     AI_RESPONSE_TRUNCATED: "La réponse a été coupée avant de pouvoir être utilisée. Sélectionnez moins de texte et réessayez.",
     CUSTOM_PROVIDER_LIMIT: "Vous pouvez enregistrer jusqu’à 10 fournisseurs personnalisés. Supprimez-en un pour en ajouter un autre.",
+    SESSION_ALREADY_RUNNING: "Un agent travaille déjà sur ce chapitre. Attendez qu’il ait fini ou arrêtez-le d’abord.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Votre clé API {provider} est invalide ou a été révoquée. Vérifiez-la dans les Paramètres.",
@@ -2139,6 +2140,7 @@ export const FR: UIStrings = {
     PROVIDER_RATE_LIMITED: "{provider} limite les requêtes pour le moment. Réessayez dans une minute.",
     PROVIDER_UNAVAILABLE: "{provider} rencontre des problèmes temporaires. Réessayez dans un instant.",
     PROVIDER_TIMEOUT: "{provider} a mis trop de temps à répondre. Réessayez.",
+    PROVIDER_MODEL_NOT_ALLOWED: "{provider} ne propose pas ce modèle avec la règle de non-utilisation des données pour l’entraînement. Choisissez un autre modèle dans les Paramètres.",
     PROVIDER_RETRYING: "{provider} n’a pas répondu cette fois.",
     NO_PROVIDER_KEY: "Aucune clé API n’est configurée pour {provider}. Ajoutez-en une dans Paramètres > Clés API.",
     DIRECT_KEY_UNSUPPORTED: "Ce modèle ne peut pas être utilisé avec une clé directe. Choisissez un autre modèle dans les Paramètres.",

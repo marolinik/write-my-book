@@ -2131,6 +2131,7 @@ export const DE: UIStrings = {
     MODEL_NO_QUICK_SUGGEST: "Dieses Modell kann keine schnellen Vorschläge machen. Wählen Sie in den Einstellungen ein anderes Modell.",
     AI_RESPONSE_TRUNCATED: "Die Antwort wurde abgeschnitten, bevor sie verwendet werden konnte. Markieren Sie weniger Text und versuchen Sie es erneut.",
     CUSTOM_PROVIDER_LIMIT: "Sie können bis zu 10 eigene Anbieter speichern. Löschen Sie einen, um einen neuen hinzuzufügen.",
+    SESSION_ALREADY_RUNNING: "An diesem Kapitel arbeitet bereits ein Agent. Warten Sie, bis er fertig ist, oder stoppen Sie ihn zuerst.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Ihr {provider}-API-Schlüssel ist ungültig oder wurde widerrufen. Prüfen Sie ihn in den Einstellungen.",
@@ -2139,6 +2140,7 @@ export const DE: UIStrings = {
     PROVIDER_RATE_LIMITED: "{provider} begrenzt gerade die Anfragen. Versuchen Sie es in einer Minute erneut.",
     PROVIDER_UNAVAILABLE: "{provider} hat vorübergehend Probleme. Versuchen Sie es gleich erneut.",
     PROVIDER_TIMEOUT: "{provider} hat zu lange für die Antwort gebraucht. Versuchen Sie es erneut.",
+    PROVIDER_MODEL_NOT_ALLOWED: "{provider} bietet dieses Modell unter der Richtlinie ohne Trainingsnutzung nicht an. Wählen Sie in den Einstellungen ein anderes Modell.",
     PROVIDER_RETRYING: "{provider} hat diesmal nicht geantwortet.",
     NO_PROVIDER_KEY: "Für {provider} ist kein API-Schlüssel eingerichtet. Fügen Sie einen unter Einstellungen > API-Schlüssel hinzu.",
     DIRECT_KEY_UNSUPPORTED: "Dieses Modell kann nicht mit einem direkten Schlüssel verwendet werden. Wählen Sie in den Einstellungen ein anderes Modell.",

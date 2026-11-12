@@ -38,6 +38,7 @@ export const API_ERROR_CODES = [
   "MODEL_NO_QUICK_SUGGEST",
   "AI_RESPONSE_TRUNCATED",
   "CUSTOM_PROVIDER_LIMIT",
+  "SESSION_ALREADY_RUNNING",
 ] as const;
 
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];

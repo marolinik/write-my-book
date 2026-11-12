@@ -1,4 +1,5 @@
 import type { AgentDefinition, AgentContext } from "./types";
+import { fenceText, FENCED_MATERIAL_NOTICE } from "@/lib/agents/prompt-fence";
 import { LANGUAGE_NAMES } from "./language-names";
 import { DocumentService } from "@/lib/documents/document-service";
 import { DocumentType } from "@/generated/prisma/enums";
@@ -1639,11 +1640,11 @@ async function loadAdjacentChapters(
     const parts: string[] = [];
     if (prev) {
       const truncated = prev.slice(0, 2000);
-      parts.push(`<previous_chapter number="${chapterNumber - 1}">\n${truncated}${prev.length > 2000 ? "\n... (truncated)" : ""}\n</previous_chapter>`);
+      parts.push(`<previous_chapter number="${chapterNumber - 1}">\n${fenceText(truncated)}${prev.length > 2000 ? "\n... (truncated)" : ""}\n</previous_chapter>`);
     }
     if (next) {
       const truncated = next.slice(0, 2000);
-      parts.push(`<next_chapter number="${chapterNumber + 1}">\n${truncated}${next.length > 2000 ? "\n... (truncated)" : ""}\n</next_chapter>`);
+      parts.push(`<next_chapter number="${chapterNumber + 1}">\n${fenceText(truncated)}${next.length > 2000 ? "\n... (truncated)" : ""}\n</next_chapter>`);
     }
     return parts.join("\n\n");
   }
@@ -1664,7 +1665,7 @@ async function loadAdjacentChapters(
         ch.chapterNumber
       );
       if (brief) {
-        summaries.push(`<chapter_summary number="${ch.chapterNumber}">\n${brief}\n</chapter_summary>`);
+        summaries.push(`<chapter_summary number="${ch.chapterNumber}">\n${fenceText(brief)}\n</chapter_summary>`);
       }
     }
     return summaries.length > 0
@@ -1858,7 +1859,7 @@ export async function assembleAgentPrompt(
       sections.push({
         name: "chapter_content",
         priority: 100, // Highest — never trim
-        content: `\n<chapter_content chapter="${context.chapterNumber}">\n${content}\n</chapter_content>`,
+        content: `\n<chapter_content chapter="${context.chapterNumber}">\n${fenceText(content)}\n</chapter_content>`,
       });
     }
   }
@@ -1867,7 +1868,7 @@ export async function assembleAgentPrompt(
   if (profile.bookMeta) {
     const parts: string[] = [];
     if (context.bookDescription) {
-      parts.push(`<book_description>\n${context.bookDescription}\n</book_description>`);
+      parts.push(`<book_description>\n${fenceText(context.bookDescription)}\n</book_description>`);
     }
     if (context.bookGenre) {
       parts.push(`<book_genre>${context.bookGenre}</book_genre>`);
@@ -1910,7 +1911,7 @@ export async function assembleAgentPrompt(
       sections.push({
         name: "story_bible",
         priority: 80,
-        content: `\n<story_bible>\n${sb}\n</story_bible>`,
+        content: `\n<story_bible>\n${fenceText(sb)}\n</story_bible>`,
       });
     }
   }
@@ -1924,7 +1925,7 @@ export async function assembleAgentPrompt(
       sections.push({
         name: "architecture",
         priority: 70,
-        content: `\n<story_architecture>\n${arch}\n</story_architecture>`,
+        content: `\n<story_architecture>\n${fenceText(arch)}\n</story_architecture>`,
       });
     }
   }
@@ -1963,7 +1964,7 @@ export async function assembleAgentPrompt(
       sections.push({
         name: "synopsis",
         priority: 78,
-        content: `\n<story_synopsis>\n${syn}\n</story_synopsis>`,
+        content: `\n<story_synopsis>\n${fenceText(syn)}\n</story_synopsis>`,
       });
     }
   }
@@ -1991,7 +1992,7 @@ export async function assembleAgentPrompt(
       sections.push({
         name: "fingerprint",
         priority: 60,
-        content: `\n<style_fingerprint>\n${fp}\n</style_fingerprint>`,
+        content: `\n<style_fingerprint>\n${fenceText(fp)}\n</style_fingerprint>`,
       });
     }
   }
@@ -2087,7 +2088,7 @@ export async function assembleAgentPrompt(
       sections.push({
         name: "chapter_plan",
         priority: 55,
-        content: `\n<chapter_plan>\n${plan}\n</chapter_plan>`,
+        content: `\n<chapter_plan>\n${fenceText(plan)}\n</chapter_plan>`,
       });
     }
   }
@@ -2105,7 +2106,7 @@ export async function assembleAgentPrompt(
       sections.push({
         name: "chapter_brief",
         priority: 55,
-        content: `\n<chapter_brief>\n${brief}\n</chapter_brief>`,
+        content: `\n<chapter_brief>\n${fenceText(brief)}\n</chapter_brief>`,
       });
     }
   }
@@ -2159,21 +2160,21 @@ export async function assembleAgentPrompt(
         sections.push({
           name: "series_bible",
           priority: 40,
-          content: `\n<series_bible>\n${seriesBible}\n</series_bible>`,
+          content: `\n<series_bible>\n${fenceText(seriesBible)}\n</series_bible>`,
         });
       }
       if (seriesArch) {
         sections.push({
           name: "series_architecture",
           priority: 38,
-          content: `\n<series_architecture>\n${seriesArch}\n</series_architecture>`,
+          content: `\n<series_architecture>\n${fenceText(seriesArch)}\n</series_architecture>`,
         });
       }
       if (seriesFp) {
         sections.push({
           name: "series_fingerprint",
           priority: 36,
-          content: `\n<series_fingerprint>\n${seriesFp}\n</series_fingerprint>`,
+          content: `\n<series_fingerprint>\n${fenceText(seriesFp)}\n</series_fingerprint>`,
         });
       }
       // Add series context instruction
@@ -2189,13 +2190,13 @@ export async function assembleAgentPrompt(
       if (seriesBible) {
         const truncated = seriesBible.slice(0, 2000);
         parts.push(
-          `\n<series_bible_summary>\n${truncated}${seriesBible.length > 2000 ? "\n... (truncated)" : ""}\n</series_bible_summary>`
+          `\n<series_bible_summary>\n${fenceText(truncated)}${seriesBible.length > 2000 ? "\n... (truncated)" : ""}\n</series_bible_summary>`
         );
       }
       if (seriesArch) {
         const truncated = seriesArch.slice(0, 2000);
         parts.push(
-          `\n<series_architecture_summary>\n${truncated}${seriesArch.length > 2000 ? "\n... (truncated)" : ""}\n</series_architecture_summary>`
+          `\n<series_architecture_summary>\n${fenceText(truncated)}${seriesArch.length > 2000 ? "\n... (truncated)" : ""}\n</series_architecture_summary>`
         );
       }
       if (parts.length > 0) {
@@ -2259,7 +2260,7 @@ export async function assembleAgentPrompt(
         sections.push({
           name: "relevant_memory",
           priority: 20,
-          content: `\n<relevant_memory>\nIMPORTANT: When using information from memory, cite the source (e.g., "Based on chapter 3 where...").\n\n${memoryContext}\n</relevant_memory>`,
+          content: `\n<relevant_memory>\nIMPORTANT: When using information from memory, cite the source (e.g., "Based on chapter 3 where...").\n\n${fenceText(memoryContext)}\n</relevant_memory>`,
         });
       }
     } catch (error) {
@@ -2341,7 +2342,7 @@ export async function assembleAgentPrompt(
     sections.push({
       name: "page_context",
       priority: 10,
-      content: `\n<user_context>\n${lines.join("\n")}\n</user_context>`,
+      content: `\n<user_context>\n${fenceText(lines.join("\n"))}\n</user_context>`,
     });
   }
 
@@ -2431,7 +2432,7 @@ export async function assembleAgentPrompt(
       `\n<context_inventory>\nThe context blocks below, in order: ` +
         `${sortedSections.map((s) => s.name).join(", ")}.\n` +
         `Anything not in this list was not given to you for this run — do not ` +
-        `assume its contents.\n</context_inventory>`
+        `assume its contents.\n${FENCED_MATERIAL_NOTICE}\n</context_inventory>`
     );
   }
 

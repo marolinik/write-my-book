@@ -2142,6 +2142,7 @@ export const EN: UIStrings = {
     MODEL_NO_QUICK_SUGGEST: "This model can't make quick suggestions. Choose another model in Settings.",
     AI_RESPONSE_TRUNCATED: "The answer was cut off before it could be used. Select less text and try again.",
     CUSTOM_PROVIDER_LIMIT: "You can save up to 10 custom providers. Delete one to add another.",
+    SESSION_ALREADY_RUNNING: "An agent is already working on this chapter. Wait for it to finish or stop it first.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Your {provider} API key is invalid or has been revoked. Check it in Settings.",
@@ -2150,6 +2151,7 @@ export const EN: UIStrings = {
     PROVIDER_RATE_LIMITED: "{provider} is limiting requests right now. Try again in a minute.",
     PROVIDER_UNAVAILABLE: "{provider} is having temporary problems. Try again in a moment.",
     PROVIDER_TIMEOUT: "{provider} took too long to answer. Try again.",
+    PROVIDER_MODEL_NOT_ALLOWED: "{provider} has no endpoint for this model under the no-training policy. Choose another model in Settings.",
     PROVIDER_RETRYING: "{provider} did not answer this time.",
     NO_PROVIDER_KEY: "No API key is set up for {provider}. Add one in Settings > API Keys.",
     DIRECT_KEY_UNSUPPORTED: "This model can't be used with a direct key. Choose another model in Settings.",

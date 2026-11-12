@@ -377,6 +377,13 @@ export function resolveRouteWithLocalFallback(
   model: ModelDefinition,
   availableKeys: AvailableKeys,
 ): { route: ProviderRouteResult; model: ModelDefinition } {
+  // P2-27: the zero-cost overlay covers every client built from this route
+  // (the book agent start route, the worker, specialist factories), not only
+  // createLLMClient. A stored key must not send a session to a paid provider.
+  if (process.env.WMB_LLM_FORCE_LOCAL === "1") {
+    const standIn = localStandInModel();
+    return { route: resolveProviderRoute("local", {}, standIn.modelId, standIn.id), model: standIn };
+  }
   const route = resolveProviderRoute(
     model.provider,
     availableKeys,

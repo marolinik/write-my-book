@@ -2131,6 +2131,7 @@ export const ZH: UIStrings = {
     MODEL_NO_QUICK_SUGGEST: "此模型无法提供快速建议。请在设置中选择其他模型。",
     AI_RESPONSE_TRUNCATED: "回答在可用之前被截断了。请选择更少的文本后重试。",
     CUSTOM_PROVIDER_LIMIT: "最多可保存 10 个自定义提供商。请先删除一个再添加。",
+    SESSION_ALREADY_RUNNING: "已有智能体正在处理本章。请等待其完成，或先停止它。",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "您的 {provider} API 密钥无效或已被撤销。请在设置中检查。",
@@ -2139,6 +2140,7 @@ export const ZH: UIStrings = {
     PROVIDER_RATE_LIMITED: "{provider} 当前正在限制请求。请一分钟后重试。",
     PROVIDER_UNAVAILABLE: "{provider} 暂时出现问题。请稍后重试。",
     PROVIDER_TIMEOUT: "{provider} 响应时间过长。请重试。",
+    PROVIDER_MODEL_NOT_ALLOWED: "在“不用于训练”的数据政策下，{provider} 没有可用于此模型的服务。请在设置中选择其他模型。",
     PROVIDER_RETRYING: "{provider} 这次没有响应。",
     NO_PROVIDER_KEY: "尚未为 {provider} 设置 API 密钥。请在“设置 > API 密钥”中添加。",
     DIRECT_KEY_UNSUPPORTED: "此模型无法使用直连密钥。请在设置中选择其他模型。",

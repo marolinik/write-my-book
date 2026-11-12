@@ -2131,6 +2131,7 @@ export const SR: UIStrings = {
     MODEL_NO_QUICK_SUGGEST: "Ovaj model ne može da daje brze predloge. Izaberi drugi model u Podešavanjima.",
     AI_RESPONSE_TRUNCATED: "Odgovor je odsečen pre nego što je mogao da se iskoristi. Izaberi manje teksta i pokušaj ponovo.",
     CUSTOM_PROVIDER_LIMIT: "Možeš da sačuvaš najviše 10 prilagođenih provajdera. Obriši jedan da bi dodao novi.",
+    SESSION_ALREADY_RUNNING: "Agent već radi na ovom poglavlju. Sačekaj da završi ili ga prvo zaustavi.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Tvoj {provider} API ključ nije ispravan ili je opozvan. Proveri ga u Podešavanjima.",
@@ -2139,6 +2140,7 @@ export const SR: UIStrings = {
     PROVIDER_RATE_LIMITED: "{provider} trenutno ograničava zahteve. Pokušaj ponovo za minut.",
     PROVIDER_UNAVAILABLE: "{provider} ima privremene probleme. Pokušaj ponovo uskoro.",
     PROVIDER_TIMEOUT: "{provider} je predugo odgovarao. Pokušaj ponovo.",
+    PROVIDER_MODEL_NOT_ALLOWED: "{provider} nema dostupan servis za ovaj model uz pravilo da se podaci ne koriste za treniranje. Izaberi drugi model u Podešavanjima.",
     PROVIDER_RETRYING: "{provider} ovaj put nije odgovorio.",
     NO_PROVIDER_KEY: "Nijedan API ključ nije podešen za {provider}. Dodaj ga u Podešavanja > API ključevi.",
     DIRECT_KEY_UNSUPPORTED: "Ovaj model ne može da se koristi sa direktnim ključem. Izaberi drugi model u Podešavanjima.",

@@ -171,6 +171,8 @@ export const GENERATED_SCHEMA_OBJECTS: readonly RequiredSchemaObject[] = [
   { label: "agent_sessions.tokens_output", table: "agent_sessions", column: "tokens_output" },
   { label: "agent_sessions.estimated_cost_usd", table: "agent_sessions", column: "estimated_cost_usd" },
   { label: "agent_sessions.actual_cost_usd", table: "agent_sessions", column: "actual_cost_usd" },
+  { label: "agent_sessions.registry_id", table: "agent_sessions", column: "registry_id" },
+  { label: "agent_sessions.budget_usd", table: "agent_sessions", column: "budget_usd" },
   { label: "agent_sessions.started_at", table: "agent_sessions", column: "started_at" },
   { label: "agent_sessions.completed_at", table: "agent_sessions", column: "completed_at" },
   { label: "batch_runs", table: "batch_runs" },

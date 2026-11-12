@@ -105,7 +105,7 @@ export function translateProviderError(
       rateLimitCounters.delete(provider);
       return {
         code: "PROVIDER_UNAVAILABLE",
-        userMessage: `${name} is experiencing temporary issues. The request will be retried automatically.`,
+        userMessage: `${name} is experiencing temporary issues.`,
         action: "retry",
         retryable: true,
         retryAfterMs: 5_000,
@@ -115,17 +115,37 @@ export function translateProviderError(
       rateLimitCounters.delete(provider);
       return {
         code: "PROVIDER_TIMEOUT",
-        userMessage: `${name} request timed out. This usually resolves on retry.`,
+        userMessage: `${name} did not answer in time (timeout or dropped connection).`,
         action: "retry",
         retryable: true,
         retryAfterMs: 10_000,
+      };
+
+    case 404:
+      rateLimitCounters.delete(provider);
+      // P2-30: OpenRouter answers 404 when no endpoint serves the model under
+      // the account's no-training data policy (the deny guard). The writer
+      // has to pick another model; retrying cannot help.
+      if (provider === "openrouter") {
+        return {
+          code: "PROVIDER_MODEL_NOT_ALLOWED",
+          userMessage: `${name} has no endpoint for this model under the no-training policy.`,
+          action: "check-key",
+          retryable: false,
+        };
+      }
+      return {
+        code: "PROVIDER_UNAVAILABLE",
+        userMessage: `${name} does not know this model (status 404).`,
+        action: "switch-provider",
+        retryable: false,
       };
 
     default:
       rateLimitCounters.delete(provider);
       return {
         code: "PROVIDER_UNAVAILABLE",
-        userMessage: `An unexpected error occurred with ${name} (status ${status}). The request will be retried.`,
+        userMessage: `An unexpected error occurred with ${name} (status ${status}).`,
         action: "retry",
         retryable: true,
         retryAfterMs: 5_000,

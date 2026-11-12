@@ -397,6 +397,10 @@ model AgentSession {
   tokensOutput    Int       @default(0) @map("tokens_output")
   estimatedCostUsd Float?  @map("estimated_cost_usd")
   actualCostUsd    Float?  @map("actual_cost_usd")
+  // P2-29: the conductor model and per-session budget decided at start, so a
+  // later conversational turn runs on the same ones. Null on older rows.
+  registryId      String?   @map("registry_id")
+  budgetUsd       Float?    @map("budget_usd")
   startedAt       DateTime  @default(now()) @map("started_at")
   completedAt     DateTime? @map("completed_at")
 
