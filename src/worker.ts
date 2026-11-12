@@ -14,6 +14,7 @@ import "./worker-env";
 import "dotenv/config";
 import { createServer } from "node:http";
 import * as Sentry from "@sentry/node";
+import { scrubBreadcrumb, scrubEvent, sentryTraceRate } from "@/lib/sentry-scrub";
 import { Worker } from "bullmq";
 import { createRedisConnection } from "@/lib/queue/connection";
 import { createErrorLogThrottle } from "@/lib/queue/error-log-throttle";
@@ -32,10 +33,13 @@ import { initGraphSchema } from "@/lib/graph";
 // The worker is a separate Node process, uncovered by the Next.js
 // instrumentation hook, so it needs its own Sentry.init. No-op unless a DSN
 // is configured (enabled gate), so local/dev runs are unaffected.
+// P2-61: the worker decrypts BYOK keys, so it scrubs exactly like the web.
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  tracesSampleRate: 1.0,
+  tracesSampleRate: sentryTraceRate(),
   enabled: !!process.env.NEXT_PUBLIC_SENTRY_DSN,
+  beforeSend: scrubEvent,
+  beforeBreadcrumb: scrubBreadcrumb,
 });
 
 assertEnvReady("worker");

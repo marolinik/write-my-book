@@ -1,37 +1,12 @@
 import * as Sentry from "@sentry/nextjs";
+import { scrubBreadcrumb, scrubEvent, sentryTraceRate } from "@/lib/sentry-scrub";
 
-/**
- * Redact API key patterns from string data.
- * Covers Anthropic (sk-ant-), OpenRouter (sk-or-), OpenAI (sk-proj-, sk-),
- * xAI (xai-), and Gemini (AIza) keys.
- */
-function redactKeyPatterns(str: string): string {
-  return str
-    .replace(/sk-ant-[a-zA-Z0-9_-]{20,}/g, "[REDACTED]")
-    .replace(/sk-or-[a-zA-Z0-9_-]{20,}/g, "[REDACTED]")
-    .replace(/sk-proj-[a-zA-Z0-9_-]{20,}/g, "[REDACTED]")
-    .replace(/sk-[a-zA-Z0-9_-]{40,}/g, "[REDACTED]")
-    .replace(/xai-[a-zA-Z0-9_-]{20,}/g, "[REDACTED]")
-    .replace(/AIza[a-zA-Z0-9_-]{30,}/g, "[REDACTED]");
-}
-
+// P2-61: the shared scrubber redacts key patterns and sensitive fields in every
+// part of an event, breadcrumbs included; 10% of traces in production.
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  tracesSampleRate: 1.0,
+  tracesSampleRate: sentryTraceRate(),
   enabled: !!process.env.NEXT_PUBLIC_SENTRY_DSN,
-
-  beforeSend(event) {
-    // Redact any API key patterns that might appear in event data
-    if (event.extra) {
-      for (const key of Object.keys(event.extra)) {
-        if (typeof event.extra[key] === "string") {
-          event.extra[key] = redactKeyPatterns(event.extra[key] as string);
-        }
-      }
-    }
-    if (event.message) {
-      event.message = redactKeyPatterns(event.message);
-    }
-    return event;
-  },
+  beforeSend: scrubEvent,
+  beforeBreadcrumb: scrubBreadcrumb,
 });

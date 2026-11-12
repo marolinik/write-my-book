@@ -22,8 +22,14 @@
  */
 import { ALL_USAGE_INCLUDING_DISCARDED } from "./billed-usage";
 
-/** Providers the product can actually route a platform key through. */
-const ROUTABLE_PROVIDERS = ["anthropic", "openrouter", "openai", "gemini", "grok"] as const;
+/**
+ * Providers the platform key may route through. P2-81 / D21: OpenRouter only.
+ * The privacy policy's processor table names OpenRouter for the platform
+ * allowance and the no-training deny guard attaches to the OpenRouter route,
+ * so any other provider here would make both statements false with one env
+ * change.
+ */
+const ROUTABLE_PROVIDERS = ["openrouter"] as const;
 
 export type ManagedProvider = (typeof ROUTABLE_PROVIDERS)[number];
 

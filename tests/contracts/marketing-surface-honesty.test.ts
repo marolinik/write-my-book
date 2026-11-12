@@ -110,3 +110,25 @@ describe("the demo page", () => {
     expect(demo).toContain('href="/signup"');
   });
 });
+
+describe("the manuscript-safety FAQ (P2-80)", () => {
+  const faq = read("components", "landing", "faq-accordion.tsx");
+  const answer = faq.slice(faq.indexOf("Is my manuscript data safe?"), faq.indexOf("Is my manuscript data safe?") + 1200);
+
+  it("names the embedding egress while the product embeds every saved chapter", () => {
+    const embeds = (() => {
+      try {
+        return read("lib", "vector", "embeddings.ts").length > 0;
+      } catch {
+        return false;
+      }
+    })();
+    if (embeds) expect(answer).toMatch(/OpenAI/);
+    if (embeds) expect(answer).toMatch(/memory|embedding/i);
+  });
+
+  it("names the research web search and points to the Privacy Policy", () => {
+    expect(answer).toMatch(/research/i);
+    expect(answer).toMatch(/Privacy Policy/);
+  });
+});

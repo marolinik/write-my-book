@@ -40,7 +40,8 @@ vi.mock("@/lib/share/snapshot-data", () => ({
 }));
 vi.mock("@/lib/share/token", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/share/token")>();
-  return { ...actual, publicShareLimiter: { allow: h.allow } };
+  // P2-23: the page asks the shared limiter; a throttled client is refused there.
+  return { ...actual, allowShareLoad: async () => h.allow() };
 });
 
 import SharePage, { generateMetadata } from "@/app/share/[token]/page";
