@@ -50,6 +50,7 @@ const h = vi.hoisted(() => {
       book: { findFirst: vi.fn(), update: vi.fn() },
       chapter: {
         findFirst: vi.fn(),
+        findUnique: vi.fn(async () => null),
         findMany: vi.fn(),
         update: vi.fn(),
         updateMany: vi.fn(),

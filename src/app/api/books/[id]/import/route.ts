@@ -126,22 +126,32 @@ async function handleStructuredImport(
   let replacedCount = 0;
   let totalWordCount = 0;
 
-  // P2-12: each chapter's DOCUMENT is written before its ROW, so a failure
-  // can never leave a row claiming new prose its document does not hold. The
-  // request was validated as a whole above; a failure here is the store's, and
-  // the writer is told exactly which chapters were imported.
+  // P2-12 (Wave 7, D24): all-or-nothing. Each chapter's DOCUMENT is written
+  // before its ROW, and every write records how to undo it; a failure undoes
+  // the chapters already imported, newest first (an updated document goes
+  // back to the version it had, a created one is deleted, a row gets its old
+  // values back or is removed). Only if an undo fails too does the answer name
+  // what stayed imported.
   const imported: number[] = [];
+  const undo: Array<() => Promise<unknown>> = [];
   try {
     for (const ch of data.chapters) {
       if (ch.action === "skip") continue;
 
       const wordCount = countWords(ch.content);
+      const rowKey = { bookId_chapterNumber: { bookId, chapterNumber: ch.number } };
+      const priorRow = await db.chapter.findUnique({
+        where: rowKey,
+        select: { title: true, wordCount: true, status: true, importedAt: true },
+      });
 
       const existingDoc = await docService.findByType(DocumentType.CHAPTER_CONTENT, ch.number);
       if (existingDoc) {
         await docService.update(existingDoc.id, ch.content, ch.title, "import", "import");
+        const priorVersion = existingDoc.currentVersion;
+        undo.push(() => docService.restoreVersion(existingDoc.id, priorVersion));
       } else {
-        await docService.create(
+        const created = await docService.create(
           DocumentType.CHAPTER_CONTENT,
           ch.content,
           ch.title,
@@ -149,7 +159,11 @@ async function handleStructuredImport(
           data.actNumber,
           "import"
         );
+        undo.push(() => docService.delete(created.id));
       }
+      undo.push(() =>
+        priorRow ? db.chapter.update({ where: rowKey, data: priorRow }) : db.chapter.delete({ where: rowKey })
+      );
 
       if (ch.action === "create") {
         await db.chapter.upsert({
@@ -186,16 +200,23 @@ async function handleStructuredImport(
       imported.push(ch.number);
     }
   } catch (error) {
-    console.error(`[Import] failed after importing chapters [${imported.join(", ")}]:`, error);
+    console.error(`[Import] failed after importing chapters [${imported.join(", ")}]; undoing them:`, error);
+    let undoFailed = false;
+    for (const step of [...undo].reverse()) {
+      try {
+        await step();
+      } catch (undoError) {
+        undoFailed = true;
+        console.error("[Import] an undo step failed:", undoError);
+      }
+    }
     await reconcileBookCounters(bookId).catch((reconcileError) =>
       console.error("[Import] counter reconcile after a failed import failed:", reconcileError)
     );
     return NextResponse.json(
-      {
-        error: "Import failed partway",
-        code: "IMPORT_PARTIAL",
-        imported,
-      },
+      undoFailed
+        ? { error: "Import failed partway", code: "IMPORT_PARTIAL", imported }
+        : { error: "Import failed; nothing was changed", code: "IMPORT_ROLLED_BACK", imported: [] },
       { status: 500 }
     );
   }

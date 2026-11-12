@@ -2146,6 +2146,7 @@ export const ES: UIStrings = {
     CUSTOM_PROVIDER_LIMIT: "Puede guardar hasta 10 proveedores personalizados. Elimine uno para añadir otro.",
     SESSION_ALREADY_RUNNING: "Ya hay un agente trabajando en este capítulo. Espere a que termine o deténgalo primero.",
     IMPORT_PARTIAL: "La importación se detuvo a medias: algunos capítulos se importaron y el resto no. Revise la lista de capítulos e importe de nuevo los que faltan.",
+    IMPORT_ROLLED_BACK: "La importación falló y no se cambió nada. Inténtelo de nuevo.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Su clave de API de {provider} no es válida o ha sido revocada. Revísela en Configuración.",

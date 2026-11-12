@@ -2146,6 +2146,7 @@ export const SR: UIStrings = {
     CUSTOM_PROVIDER_LIMIT: "Možeš da sačuvaš najviše 10 prilagođenih provajdera. Obriši jedan da bi dodao novi.",
     SESSION_ALREADY_RUNNING: "Agent već radi na ovom poglavlju. Sačekaj da završi ili ga prvo zaustavi.",
     IMPORT_PARTIAL: "Uvoz je prekinut na pola: neka poglavlja su uvezena, a ostala nisu. Proveri spisak poglavlja, pa ponovo uvezi ona koja nedostaju.",
+    IMPORT_ROLLED_BACK: "Uvoz nije uspeo i ništa nije promenjeno. Pokušaj ponovo.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Tvoj {provider} API ključ nije ispravan ili je opozvan. Proveri ga u Podešavanjima.",

@@ -18,7 +18,7 @@ const h = vi.hoisted(() => ({
   requireUser: vi.fn(),
   db: {
     book: { findFirst: vi.fn() },
-    chapter: { findMany: vi.fn(), upsert: vi.fn(), update: vi.fn() },
+    chapter: { findMany: vi.fn(), upsert: vi.fn(), update: vi.fn(), findUnique: vi.fn(async () => null) },
   },
   doc: { findByType: vi.fn(), update: vi.fn(), create: vi.fn() },
   storageWrite: vi.fn(),

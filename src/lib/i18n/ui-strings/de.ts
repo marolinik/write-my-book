@@ -2146,6 +2146,7 @@ export const DE: UIStrings = {
     CUSTOM_PROVIDER_LIMIT: "Sie können bis zu 10 eigene Anbieter speichern. Löschen Sie einen, um einen neuen hinzuzufügen.",
     SESSION_ALREADY_RUNNING: "An diesem Kapitel arbeitet bereits ein Agent. Warten Sie, bis er fertig ist, oder stoppen Sie ihn zuerst.",
     IMPORT_PARTIAL: "Der Import wurde unterbrochen: Einige Kapitel wurden importiert, die übrigen nicht. Prüfen Sie die Kapitelliste und importieren Sie die fehlenden Kapitel erneut.",
+    IMPORT_ROLLED_BACK: "Der Import ist fehlgeschlagen; es wurde nichts geändert. Versuchen Sie es erneut.",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "Ihr {provider}-API-Schlüssel ist ungültig oder wurde widerrufen. Prüfen Sie ihn in den Einstellungen.",

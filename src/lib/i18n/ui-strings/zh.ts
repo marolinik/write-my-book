@@ -2146,6 +2146,7 @@ export const ZH: UIStrings = {
     CUSTOM_PROVIDER_LIMIT: "最多可保存 10 个自定义提供商。请先删除一个再添加。",
     SESSION_ALREADY_RUNNING: "已有智能体正在处理本章。请等待其完成，或先停止它。",
     IMPORT_PARTIAL: "导入中途停止：部分章节已导入，其余未导入。请检查章节列表，然后重新导入缺失的章节。",
+    IMPORT_ROLLED_BACK: "导入失败，未做任何更改。请重试。",
   },
   agentErrors: {
     PROVIDER_KEY_INVALID: "您的 {provider} API 密钥无效或已被撤销。请在设置中检查。",
