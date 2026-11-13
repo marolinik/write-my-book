@@ -52,6 +52,22 @@ describe("worker image (P2-84)", () => {
   });
 });
 
+describe("the worker does not load Next (Wave 7 Task 5)", () => {
+  it("the shared logger reports through @sentry/node, not @sentry/nextjs", () => {
+    const logger = readFileSync(join(ROOT, "src", "lib", "logger.ts"), "utf8");
+    expect(logger).not.toContain("@sentry/nextjs");
+    expect(logger).toContain("@sentry/node");
+  });
+
+  it("the worker runtime drops next, @next/* and @sentry/nextjs from node_modules", () => {
+    const dockerfile = readFileSync(join(ROOT, "Dockerfile.worker"), "utf8");
+    const prodDeps = dockerfile.slice(dockerfile.indexOf("AS prod-deps"), dockerfile.indexOf("AS builder"));
+    expect(prodDeps).toMatch(/rm -rf[^\n]*node_modules\/next\b/);
+    expect(prodDeps).toMatch(/rm -rf[^\n]*node_modules\/@next\b/);
+    expect(prodDeps).toMatch(/rm -rf[^\n]*node_modules\/@sentry\/nextjs\b/);
+  });
+});
+
 describe("web image (Wave 6 CI)", () => {
   it("every repository directory the Dockerfile copies from the build exists in the tree", () => {
     const dockerfile = readFileSync(join(ROOT, "Dockerfile"), "utf8");

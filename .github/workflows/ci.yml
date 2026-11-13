@@ -203,5 +203,13 @@ jobs:
         run: docker build -f Dockerfile -t wmb-web:ci .
       - name: Build the worker image
         run: docker build -f Dockerfile.worker -t wmb-worker:ci .
+      - name: The worker image carries no Next (Wave 7 Task 5)
+        run: |
+          docker image inspect wmb-worker:ci --format 'worker image: {{.Size}} bytes'
+          docker run --rm --entrypoint sh wmb-worker:ci -c '
+            for p in next @next @sentry/nextjs; do
+              if [ -e "node_modules/$p" ]; then echo "node_modules/$p is in the worker image"; exit 1; fi
+            done
+            node -e "require(\"./dist-worker/lib/logger.js\")"'
       - name: The web image carries pandoc, Typst and the fonts
         run: docker run --rm -i --entrypoint sh wmb-web:ci < scripts/check-export-fonts.sh

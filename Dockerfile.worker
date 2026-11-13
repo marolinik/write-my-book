@@ -28,6 +28,10 @@ FROM base AS prod-deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts
+# Wave 7 Task 5: the worker never loads Next (scripts/check-worker-deps.mjs
+# proves it on the compiled require graph), so its runtime drops Next, its
+# native SWC binaries and the Sentry Next SDK that would load it.
+RUN rm -rf node_modules/next node_modules/@next node_modules/@sentry/nextjs
 
 FROM base AS builder
 WORKDIR /app
