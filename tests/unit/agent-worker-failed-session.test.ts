@@ -37,8 +37,8 @@ const h = vi.hoisted(() => {
   return {
     redis,
     db: {
-      // findUnique: the P1-14 rerun guard reads the row; null = a fresh session.
-      agentSession: { update: vi.fn(), updateMany: vi.fn(), findUnique: vi.fn(async () => null) },
+      // findUnique: the P1-14 rerun guard reads the row (Wave 7: no row = exit at once).
+      agentSession: { update: vi.fn(), updateMany: vi.fn(), findUnique: vi.fn(async (): Promise<{ status: string } | null> => ({ status: "queued" })) },
       batchRun: { findUnique: vi.fn(), update: vi.fn() },
       apiKey: { findMany: vi.fn() },
       book: { findFirst: vi.fn() },
@@ -335,5 +335,33 @@ describe("retries after a setup error (Wave 3 review I1)", () => {
     const job = { ...makeJob({ ...BASE }), attemptsMade: 2, opts: { attempts: 3 } } as unknown as Job<AgentJobData>;
     await expect(processAgentJob(job)).rejects.toThrow();
     expect(failedFlips()).toHaveLength(1);
+  });
+});
+
+describe("Wave 3 job-queue minors (Wave 7 Task 6)", () => {
+  const withMessage = { ...BASE, message: "Tighten chapter two." };
+
+  it("a first start appends the writer's message once", async () => {
+    h.fakeResult.current = completedResult();
+    const job = { ...makeJob(withMessage), attemptsMade: 0, attemptsStarted: 1 } as unknown as Job<AgentJobData>;
+    await processAgentJob(job);
+    expect(h.addUserMessage).toHaveBeenCalledTimes(1);
+  });
+
+  it("a stalled re-run (attemptsStarted 2, attemptsMade still 0) does not append it again", async () => {
+    h.fakeResult.current = completedResult();
+    const job = { ...makeJob(withMessage), attemptsMade: 0, attemptsStarted: 2 } as unknown as Job<AgentJobData>;
+    await processAgentJob(job);
+    expect(h.addUserMessage).not.toHaveBeenCalled();
+  });
+
+  it("a job whose session row is gone (rolled back or erased) exits at once and runs nothing", async () => {
+    h.fakeResult.current = completedResult();
+    h.db.agentSession.findUnique.mockResolvedValueOnce(null);
+    await processAgentJob(makeJob(withMessage));
+    expect(h.addUserMessage).not.toHaveBeenCalled();
+    expect(h.processPostSession).not.toHaveBeenCalled();
+    expect(h.db.agentSession.update).not.toHaveBeenCalled();
+    expect(publishedTypes()).toEqual([]);
   });
 });

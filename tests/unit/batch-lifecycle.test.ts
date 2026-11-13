@@ -69,11 +69,13 @@ const h = vi.hoisted(() => {
         create: vi.fn(),
         update: vi.fn(),
         findUnique: vi.fn(),
+        delete: vi.fn(),
       },
       agentSession: {
-        // P1-14 rerun guard reads the row; null = a fresh child.
-        findUnique: vi.fn(async () => null),
+        // P1-14 rerun guard reads the row; a live child has one (Wave 7: none = exit).
+        findUnique: vi.fn(async () => ({ status: "queued" })),
         createMany: vi.fn(),
+        deleteMany: vi.fn(),
         update: vi.fn(),
         updateMany: vi.fn(),
         findMany: vi.fn(),
@@ -311,6 +313,44 @@ describe("batch lifecycle — (a) fan-out", () => {
     ).rejects.toThrow(/finite/i);
     expect(h.db.batchRun.create).not.toHaveBeenCalled();
     expect(h.flowAdd).not.toHaveBeenCalled();
+  });
+
+  it("Wave 7: a failed enqueue (Redis command timeout) leaves no queued batch or child rows behind", async () => {
+    h.flowAdd.mockRejectedValueOnce(new Error("Command timed out"));
+    await expect(
+      enqueueBatchFlow({
+        userId: USER_ID,
+        bookId: BOOK_ID,
+        workflowIds: ["dev-edit"],
+        chapterStart: 1,
+        chapterEnd: 2,
+        budgetCapUsd: CAP,
+        children: [childPayload("dev-edit", "dev-editor", 1), childPayload("dev-edit", "dev-editor", 2)],
+      })
+    ).rejects.toThrow("Command timed out");
+    expect(h.db.agentSession.deleteMany).toHaveBeenCalledWith({ where: { batchId: BATCH_ID } });
+    expect(h.db.batchRun.delete).toHaveBeenCalledWith({ where: { id: BATCH_ID } });
+    // Children first: the batch row is their parent.
+    expect(h.db.agentSession.deleteMany.mock.invocationCallOrder[0]).toBeLessThan(
+      h.db.batchRun.delete.mock.invocationCallOrder[0]
+    );
+  });
+
+  it("Wave 7: the enqueue error still reaches the caller when the rollback fails too", async () => {
+    h.flowAdd.mockRejectedValueOnce(new Error("Command timed out"));
+    h.db.agentSession.deleteMany.mockRejectedValueOnce(new Error("db down"));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    await expect(
+      enqueueBatchFlow({
+        userId: USER_ID,
+        bookId: BOOK_ID,
+        workflowIds: ["dev-edit"],
+        chapterStart: 1,
+        chapterEnd: 1,
+        budgetCapUsd: CAP,
+        children: [childPayload("dev-edit", "dev-editor", 1)],
+      })
+    ).rejects.toThrow("Command timed out");
   });
 });
 

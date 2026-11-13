@@ -102,6 +102,30 @@ function getFlowProducer(): FlowProducer {
 }
 
 /**
+ * Wave 7: hand the fan-out to BullMQ; if Redis refuses or times out (the app
+ * connection has a command timeout), delete the queued child rows and the
+ * batch row so nothing shows as queued forever, then rethrow. Should the add
+ * have landed despite the timeout, its jobs find no session row and exit
+ * without running (agent-worker's missing-row guard).
+ */
+async function addFlowOrRollback(
+  batchId: string,
+  flow: Parameters<FlowProducer["add"]>[0]
+): ReturnType<FlowProducer["add"]> {
+  try {
+    return await getFlowProducer().add(flow);
+  } catch (error) {
+    try {
+      await db.agentSession.deleteMany({ where: { batchId } });
+      await db.batchRun.delete({ where: { id: batchId } });
+    } catch (rollbackError) {
+      console.error(`[batch] enqueue of ${batchId} failed and its rows could not be removed:`, rollbackError);
+    }
+    throw error;
+  }
+}
+
+/**
  * Create the `BatchRun` + child `AgentSession` rows (status `queued`) and enqueue
  * the FlowProducer fan-out. Children run on `agent-sessions` (dedup jobId =
  * sessionId, as today) and carry the optional one-shot `delay` (e.g. "Tonight
@@ -206,7 +230,7 @@ export async function enqueueBatchFlow(
   );
 
   // ── Enqueue: parent digest on the NEW queue, children on the existing ──
-  const flow = await getFlowProducer().add({
+  const flow = await addFlowOrRollback(batch.id, {
     queueName: BATCH_DIGEST_QUEUE_NAME,
     name: "digest",
     data: { batchId: batch.id } satisfies BatchDigestJobData,

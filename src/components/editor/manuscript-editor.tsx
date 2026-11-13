@@ -32,6 +32,8 @@ import {
   capturePendingSave,
   flushPendingSave,
   registerPendingFlush,
+  trackInFlightSave,
+  type InFlightSaveRef,
 } from "./save-flush";
 import { cn, countWords } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -334,6 +336,9 @@ export function ManuscriptEditor({
   const saveChapterSnapshot = useSaveChapterSnapshot(bookId);
   const saveSnapshotRef = useRef(saveChapterSnapshot);
   saveSnapshotRef.current = saveChapterSnapshot;
+  // Wave 7: the PUT in flight, so a flush waits for it instead of 409ing
+  // against it with the same version stamp.
+  const inFlightSaveRef = useRef<InFlightSaveRef["current"]>(null);
 
   // Prev/next chapter navigation
   const currentIdx = allChapters?.findIndex((ch) => ch.id === chapterId) ?? -1;
@@ -437,7 +442,7 @@ export function ManuscriptEditor({
       const ed = editorRef.current;
       if (!ed || ed.isDestroyed) return;
       const snapshot = capturePendingSave(paneStore.getState(), getMarkdownFromEditor(ed));
-      void flushPendingSave(snapshot, saveSnapshotRef.current).then((outcome) => {
+      void flushPendingSave(snapshot, saveSnapshotRef.current, inFlightSaveRef.current).then((outcome) => {
         if (outcome === "saved" && snapshot) clearDraftRef.current(snapshot.chapterId);
       });
     };
@@ -613,11 +618,13 @@ export function ManuscriptEditor({
     };
 
     try {
-      const res = await saveMutationRef.current.mutateAsync({
+      const request = saveMutationRef.current.mutateAsync({
         markdown: md,
         expectedVersion,
         keepalive: options?.keepalive,
       });
+      trackInFlightSave(inFlightSaveRef, request);
+      const res = await request;
       if (isStale()) {
         paneStore.getState().setSaving(false);
         return;
@@ -766,6 +773,9 @@ export function ManuscriptEditor({
   useEffect(
     () =>
       registerPendingFlush(async () => {
+        // Wave 7: let a PUT in flight land first; it moves the version the
+        // save below must carry (saveContent reads it from the store).
+        await inFlightSaveRef.current;
         const s = paneStore.getState();
         if (!s.isDirty || s.saveConflict) return;
         if (saveTimerRef.current) clearTimeout(saveTimerRef.current);

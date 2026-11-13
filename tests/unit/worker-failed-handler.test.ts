@@ -79,7 +79,8 @@ describe("the worker", () => {
 
   it("a retry never redoes a finished session, and persists the writer's message once", () => {
     expect(agentWorker).toMatch(/SESSION_TERMINAL_STATUSES\.has\(/);
-    expect(agentWorker).toMatch(/if \(message && job\.attemptsMade === 0\)/);
+    // Wave 7: once per first START (a stalled re-run keeps attemptsMade at 0).
+    expect(agentWorker).toMatch(/if \(message && \(job\.attemptsStarted \?\? /);
   });
 });
 
