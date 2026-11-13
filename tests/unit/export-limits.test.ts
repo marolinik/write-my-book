@@ -1,25 +1,8 @@
-// P2-76 / D19: one export per writer at a time, and a converter timeout kills
-// the whole process group (pandoc's Typst child too).
+// P2-76: a converter timeout kills the whole process group (pandoc's Typst
+// child too). The per-writer export slot is tested in export-jobs.test.ts.
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
-import { withExportSlot, runConverter, ConverterTimeoutError, ConverterExitError } from "@/lib/import-export/export-limits";
-
-describe("withExportSlot", () => {
-  it("refuses a second export for the same writer while one runs, and frees the slot after", async () => {
-    let release!: () => void;
-    const first = withExportSlot("u1", () => new Promise<string>((r) => (release = () => r("done"))));
-    expect(await withExportSlot("u1", async () => "second")).toBeNull();
-    expect(await withExportSlot("u2", async () => "other writer")).toEqual({ value: "other writer" });
-    release();
-    expect(await first).toEqual({ value: "done" });
-    expect(await withExportSlot("u1", async () => "again")).toEqual({ value: "again" });
-  });
-
-  it("frees the slot when the export throws", async () => {
-    await expect(withExportSlot("u3", async () => { throw new Error("boom"); })).rejects.toThrow("boom");
-    expect(await withExportSlot("u3", async () => 1)).toEqual({ value: 1 });
-  });
-});
+import { runConverter, ConverterTimeoutError, ConverterExitError } from "@/lib/import-export/export-limits";
 
 describe("runConverter", () => {
   it("resolves on exit 0 and rejects with the exit code otherwise", async () => {
@@ -61,7 +44,8 @@ describe("wiring", () => {
     expect(src).toMatch(/runConverter\(pandocArgs\[0\]/);
   });
 
-  it.each(["src/app/api/books/[id]/export/route.ts", "src/app/api/series/[id]/export/route.ts"])("%s takes the writer's export slot", (file) => {
-    expect(readFileSync(file, "utf8")).toMatch(/withExportSlot\(/);
+  // Wave 7 / D22: the per-writer slot moved to Redis with the export queue.
+  it.each(["src/app/api/books/[id]/export/route.ts", "src/app/api/series/[id]/export/route.ts"])("%s enqueues under the writer's export slot", (file) => {
+    expect(readFileSync(file, "utf8")).toMatch(/enqueueExport\(/);
   });
 });

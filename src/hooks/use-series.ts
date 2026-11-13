@@ -5,6 +5,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import { awaitExportJob } from "@/lib/import-export/await-export-job";
 import { ApiError, fetchJson } from "@/lib/api-client";
 import { useUpgradeModal } from "@/hooks/use-billing";
 import { responseError } from "@/lib/api/describe-api-error";
@@ -86,7 +87,9 @@ async function runSeriesExport(
     const errBody = await res.json().catch(() => ({}));
     throw await responseError(res, errBody);
   }
-  return (await res.json()) as SeriesExportResult;
+  // Wave 7 / D22: the omnibus is a job on the worker; wait for it.
+  const { jobId } = (await res.json()) as { jobId: string };
+  return awaitExportJob<SeriesExportResult>(`/api/series/${seriesId}/export/jobs/${jobId}`);
 }
 
 /** Export all series books as a single omnibus volume. Returns ExportResult. */

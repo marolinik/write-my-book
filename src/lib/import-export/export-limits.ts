@@ -1,23 +1,9 @@
 import { spawn } from "node:child_process";
 
 /**
- * P2-76 / D19: exports run pandoc (and Typst under it) inside the request.
- * Until they move to a queue, a writer may have ONE export running at a time
- * in this process: a proxy timeout followed by the writer pressing Export
- * again used to stack converter processes.
+ * P2-76: the converter process an export runs. The per-writer "one export at a
+ * time" limit lives with the export queue (src/lib/queue/export-queue.ts).
  */
-const running = new Set<string>();
-
-/** Runs `fn` holding the writer's export slot, or returns null when it is taken. */
-export async function withExportSlot<T>(writerId: string, fn: () => Promise<T>): Promise<{ value: T } | null> {
-  if (running.has(writerId)) return null;
-  running.add(writerId);
-  try {
-    return { value: await fn() };
-  } finally {
-    running.delete(writerId);
-  }
-}
 
 export class ConverterTimeoutError extends Error {
   constructor(public readonly timeoutMs: number) {

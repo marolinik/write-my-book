@@ -24,6 +24,8 @@ import { processBatchDigestJob } from "@/lib/queue/batch-digest";
 import { BATCH_DIGEST_QUEUE_NAME } from "@/lib/queue/batch-flow";
 import { ERASURE_QUEUE_NAME, enqueueErasure } from "@/lib/queue/erasure-queue";
 import { processErasureJob, reapPendingErasures } from "@/lib/queue/erasure-worker";
+import { EXPORT_QUEUE_NAME } from "@/lib/queue/export-queue";
+import { processExportJob } from "@/lib/queue/export-worker";
 import { purgeExpiredShares } from "@/lib/share/purge";
 import { isFinalFailure, markSessionTerminal, reapStrandedSessions } from "@/lib/queue/session-terminal";
 import { assertEnvReady } from "@/lib/env";
@@ -118,6 +120,19 @@ const erasureWorker = new Worker(ERASURE_QUEUE_NAME, processErasureJob, {
 erasureWorker.on("failed", (job, error) => {
   Sentry.captureException(error, { extra: { jobId: job?.id, attemptsMade: job?.attemptsMade } });
   console.error(`[ErasureWorker] Job ${job?.id} failed:`, error.message);
+});
+
+// ── Export Worker (Wave 7 / D22) ──────────────────────────────────────
+// Book and series exports run pandoc/Typst here instead of inside the HTTP
+// request. Concurrency bounds the converter processes per worker; each
+// writer has at most one export at a time (the enqueue slot).
+const exportWorker = new Worker(EXPORT_QUEUE_NAME, processExportJob, {
+  connection: createRedisConnection(),
+  concurrency: Math.max(1, Number.parseInt(process.env.EXPORT_CONCURRENCY ?? "2", 10) || 2),
+});
+
+exportWorker.on("failed", (job, error) => {
+  console.error(`[ExportWorker] Job ${job?.id} failed:`, error.message);
 });
 
 // The reaper re-queues erasures still pending: an enqueue lost to a Redis
@@ -237,7 +252,7 @@ const shutdown = async (signal: string) => {
   clearInterval(erasureReaper);
   clearInterval(strandedReaper);
   clearInterval(sharePurger);
-  await Promise.all([worker.close(), digestWorker.close(), erasureWorker.close()]);
+  await Promise.all([worker.close(), digestWorker.close(), erasureWorker.close(), exportWorker.close()]);
   if (healthServer) {
     await new Promise<void>((resolve) => healthServer.close(() => resolve()));
   }

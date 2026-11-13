@@ -61,14 +61,13 @@ describe("conversion failure", () => {
     expect(pipeline).toContain("throw new ExportConversionError(");
   });
 
-  it.each([
-    ["src/app/api/books/[id]/export/route.ts"],
-    ["src/app/api/series/[id]/export/route.ts"],
-  ])("%s answers 502 CONVERSION_FAILED and never echoes error.message", (file) => {
-    const route = read(...file.split("/"));
-    expect(route).toContain('"CONVERSION_FAILED"');
-    expect(route).toContain("status: 502");
-    expect(route).not.toMatch(/error: \(error as Error\)\.message/);
+  it("the export worker reports only a code, and the status route answers only that code (Wave 7)", () => {
+    const worker = read("src", "lib", "queue", "export-worker.ts");
+    expect(worker).toContain('"CONVERSION_FAILED"');
+    expect(worker).toContain("throw new UnrecoverableError(code)");
+    const status = read("src", "lib", "import-export", "export-job-status.ts");
+    expect(status).toContain("code: exportFailureCode(job.failedReason)");
+    expect(status).not.toMatch(/failedReason\s*[,}]/);
   });
 });
 

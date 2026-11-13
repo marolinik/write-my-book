@@ -62,3 +62,23 @@ describe("web image (Wave 6 CI)", () => {
     for (const dir of copied) expect(existsSync(join(ROOT, dir)), dir).toBe(true);
   });
 });
+
+describe("export tools in both images (Wave 7 / D22)", () => {
+  it("the worker image carries the web image's export-tools stage, pins included", () => {
+    const stage = (file: string) => {
+      const text = readFileSync(join(ROOT, file), "utf8").replace(/\r\n/g, "\n");
+      const start = text.indexOf("FROM base AS export-tools");
+      const end = text.indexOf("\nFROM ", start + 1);
+      // Instructions only: comments between stages differ by file and do not matter.
+      return text
+        .slice(start, end)
+        .split("\n")
+        .filter((line) => line.trim() !== "" && !line.trim().startsWith("#"))
+        .join("\n");
+    };
+    expect(stage("Dockerfile.worker")).toBe(stage("Dockerfile"));
+    const worker = readFileSync(join(ROOT, "Dockerfile.worker"), "utf8");
+    expect(worker).toContain("FROM export-tools AS runner");
+    expect(worker).toContain("COPY --from=builder /app/export-templates ./export-templates");
+  });
+});
