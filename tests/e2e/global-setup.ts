@@ -1,5 +1,6 @@
 import "dotenv/config";
 import pg from "pg";
+import IORedis from "ioredis";
 
 const E2E_CLERK_ID = "user_test_e2e";
 
@@ -26,6 +27,20 @@ const KEYS_PERSONA = {
   email: "qa.keys@qa.local",
   name: "Last Key",
 } as const;
+
+async function freeExportSlot(userId: string): Promise<void> {
+  const url = process.env.REDIS_URL;
+  if (!url) return;
+  const redis = new IORedis(url, { lazyConnect: true, maxRetriesPerRequest: 1, connectTimeout: 5_000 });
+  try {
+    await redis.connect();
+    await redis.del(`export:running:${userId}`);
+  } catch (error) {
+    console.warn("[global-setup] could not free the export slot (an export may answer 429):", error);
+  } finally {
+    redis.disconnect();
+  }
+}
 
 /**
  * Global setup: seed the E2E test user via raw SQL.
@@ -93,6 +108,12 @@ export default async function globalSetup() {
     );
 
     console.log("[global-setup] Test user seeded:", E2E_CLERK_ID, "(plan: professional/active)");
+
+    // Wave 7 / D22: one export per writer at a time, held in Redis until a
+    // worker finishes the job. This suite's server runs no worker, so a
+    // previous local run's export holds the slot for its 10-minute TTL and
+    // the next run's export would answer 429. Free it.
+    await freeExportSlot(user.id);
 
     // Dedicated language persona for book-development-language-smoke.spec.ts.
     // Upsert only (no wipe): its books carry per-run unique names, and the

@@ -1,21 +1,13 @@
-import { test, expect } from "@playwright/test";
-import { uniqueName } from "./fixtures";
-import { execFileSync } from "node:child_process";
-
-/** Pandoc on the machine running the server (local runs share it). */
-function pandocInstalled(): boolean {
-  try {
-    execFileSync("pandoc", ["--version"], { stdio: "ignore" });
-    return true;
-  } catch {
-    return false;
-  }
-}
+import type { APIRequestContext } from "@playwright/test";
+import { test, expect, uniqueName, createChapterViaApi } from "./fixtures";
 
 /**
  * Full Writing Workflow Smoke Test
  *
- * Serial steps simulating a real writer's workflow:
+ * Steps of a real writer's workflow. P2-67 (Wave 7): they no longer run in
+ * serial mode on shared ids (one early failure skipped the other 13); each
+ * step builds the state it needs with the helpers below, so a failure is
+ * reported where it happens.
  *   1.  Create a book
  *   2.  Create style fingerprint (API)
  *   3.  Seed setup documents: concept, bible, architecture (API)
@@ -31,12 +23,51 @@ function pandocInstalled(): boolean {
  *  13.  Create series continuity document
  *  14.  Inline AI edit API (validates the new /inline-edit endpoint)
  */
-test.describe("Full Writing Workflow Smoke Test", () => {
-  test.describe.configure({ mode: "serial" });
+const PROSE = [
+  "# The Awakening",
+  "",
+  "The wind howled through the ancient tower, rattling the shutters that had not been opened in a century. Elara pressed her palm against the cold stone wall and felt the magic pulsing beneath, a heartbeat older than the kingdom itself.",
+  "",
+  "She had come alone, against the counsel of her mentor, against every instinct that told her to turn back. But the visions would not stop, and the answers she needed lay somewhere in this crumbling spire above the clouds.",
+  "",
+  '"You should not be here," a voice said from the shadows.',
+  "",
+  "Elara spun, drawing the short blade at her hip. The figure that emerged was not what she expected — a child, no more than ten, with eyes that glowed faintly silver in the darkness.",
+  "",
+  '"Neither should you," Elara replied, lowering her weapon slowly. "Who are you?"',
+  "",
+  'The child tilted their head, as if the question itself was strange. "I am what remains," they said simply. "And you are what comes next."',
+  "",
+  "A tremor ran through the floor. Dust cascaded from the ceiling. Somewhere far below, something vast and ancient was waking up. Elara steadied herself against the wall, fingers digging into the grooves carved by hands long dead.",
+  "",
+  '"Show me," she whispered. And the Silver Child smiled.',
+].join("\n");
 
-  let bookId: string;
-  let chapterId: string;
-  let seriesId: string;
+/** Chapter 1 ("The Awakening"), adopting the placeholder POST /api/books seeds. */
+async function chapterOne(request: APIRequestContext, bookId: string): Promise<string> {
+  const chapter = await createChapterViaApi(request, bookId, { chapterNumber: 1, title: "The Awakening", actNumber: 1 });
+  return chapter.id;
+}
+
+/** Chapter 1 with the prose above. */
+async function writtenChapterOne(request: APIRequestContext, bookId: string): Promise<string> {
+  const chapterId = await chapterOne(request, bookId);
+  const putRes = await request.put(`/api/books/${bookId}/chapters/${chapterId}/content`, { data: { markdown: PROSE } });
+  expect(putRes.ok()).toBeTruthy();
+  return chapterId;
+}
+
+async function createSeries(request: APIRequestContext): Promise<string> {
+  const createRes = await request.post("/api/series", {
+    data: { title: uniqueName("Smoke Test Saga"), genre: "Fantasy", seriesType: "TRILOGY", plannedBooks: 3 },
+  });
+  expect(createRes.status()).toBe(201);
+  const series = await createRes.json();
+  expect(series.id).toBeTruthy();
+  return series.id as string;
+}
+
+test.describe("Full Writing Workflow Smoke Test", () => {
 
   // ─── Step 1: Create book via API ──────────────────────────────
   test("Step 1 — Create book", async ({ request }) => {
@@ -50,12 +81,11 @@ test.describe("Full Writing Workflow Smoke Test", () => {
     expect(res.ok()).toBeTruthy();
     const data = await res.json();
     expect(data.id).toBeTruthy();
-    bookId = data.id;
   });
 
   // ─── Step 2: Create style fingerprint ─────────────────────────
-  test("Step 2 — Create style fingerprint", async ({ request }) => {
-    expect(bookId).toBeTruthy();
+  test("Step 2 — Create style fingerprint", async ({ request, book }) => {
+    const bookId = book.id;
 
     const createRes = await request.post(`/api/books/${bookId}/style`, {
       data: {
@@ -78,10 +108,8 @@ test.describe("Full Writing Workflow Smoke Test", () => {
   });
 
   // ─── Step 3: Seed concept, bible, architecture ────────────────
-  test("Step 3 — Seed concept, bible, architecture documents", async ({
-    request,
-  }) => {
-    expect(bookId).toBeTruthy();
+  test("Step 3 — Seed concept, bible, architecture documents", async ({ request, book }) => {
+    const bookId = book.id;
 
     const docs = [
       {
@@ -119,8 +147,9 @@ test.describe("Full Writing Workflow Smoke Test", () => {
   });
 
   // ─── Step 4: Create chapter 1 ─────────────────────────────────
-  test("Step 4 — Create chapter 1", async ({ request }) => {
-    expect(bookId).toBeTruthy();
+  test("Step 4 — Create chapter 1", async ({ request, book }) => {
+    const bookId = book.id;
+    let chapterId: string;
 
     // POST /api/books already seeded a titleless placeholder Ch1 (D-194), so
     // the create here is an adopt-when-present flow: 201 on a book without the
@@ -149,9 +178,9 @@ test.describe("Full Writing Workflow Smoke Test", () => {
   });
 
   // ─── Step 5: Plan chapter 1 ───────────────────────────────────
-  test("Step 5 — Plan chapter 1 beat sheet", async ({ request }) => {
-    expect(bookId).toBeTruthy();
-    expect(chapterId).toBeTruthy();
+  test("Step 5 — Plan chapter 1 beat sheet", async ({ request, book }) => {
+    const bookId = book.id;
+    const chapterId = await chapterOne(request, bookId);
 
     // Create plan document
     const planRes = await request.post(`/api/books/${bookId}/documents`, {
@@ -178,33 +207,13 @@ test.describe("Full Writing Workflow Smoke Test", () => {
   });
 
   // ─── Step 6: Write chapter content ────────────────────────────
-  test("Step 6 — Write chapter 1 content", async ({ request }) => {
-    expect(bookId).toBeTruthy();
-    expect(chapterId).toBeTruthy();
-
-    const prose = [
-      "# The Awakening",
-      "",
-      "The wind howled through the ancient tower, rattling the shutters that had not been opened in a century. Elara pressed her palm against the cold stone wall and felt the magic pulsing beneath, a heartbeat older than the kingdom itself.",
-      "",
-      "She had come alone, against the counsel of her mentor, against every instinct that told her to turn back. But the visions would not stop, and the answers she needed lay somewhere in this crumbling spire above the clouds.",
-      "",
-      '"You should not be here," a voice said from the shadows.',
-      "",
-      "Elara spun, drawing the short blade at her hip. The figure that emerged was not what she expected — a child, no more than ten, with eyes that glowed faintly silver in the darkness.",
-      "",
-      '"Neither should you," Elara replied, lowering her weapon slowly. "Who are you?"',
-      "",
-      'The child tilted their head, as if the question itself was strange. "I am what remains," they said simply. "And you are what comes next."',
-      "",
-      "A tremor ran through the floor. Dust cascaded from the ceiling. Somewhere far below, something vast and ancient was waking up. Elara steadied herself against the wall, fingers digging into the grooves carved by hands long dead.",
-      "",
-      '"Show me," she whispered. And the Silver Child smiled.',
-    ].join("\n");
+  test("Step 6 — Write chapter 1 content", async ({ request, book }) => {
+    const bookId = book.id;
+    const chapterId = await chapterOne(request, bookId);
 
     const putRes = await request.put(
       `/api/books/${bookId}/chapters/${chapterId}/content`,
-      { data: { markdown: prose } }
+      { data: { markdown: PROSE } }
     );
     expect(putRes.ok()).toBeTruthy();
     const data = await putRes.json();
@@ -219,8 +228,9 @@ test.describe("Full Writing Workflow Smoke Test", () => {
   });
 
   // ─── Step 7: Dev edit findings → apply ────────────────────────
-  test("Step 7 — Dev edit findings and apply", async ({ request }) => {
-    expect(bookId).toBeTruthy();
+  test("Step 7 — Dev edit findings and apply", async ({ request, book }) => {
+    const bookId = book.id;
+    await writtenChapterOne(request, bookId);
 
     // Create findings
     const res = await request.post(
@@ -275,8 +285,9 @@ test.describe("Full Writing Workflow Smoke Test", () => {
   });
 
   // ─── Step 8: Line edit findings → apply ───────────────────────
-  test("Step 8 — Line edit findings and apply", async ({ request }) => {
-    expect(bookId).toBeTruthy();
+  test("Step 8 — Line edit findings and apply", async ({ request, book }) => {
+    const bookId = book.id;
+    await writtenChapterOne(request, bookId);
 
     const res = await request.post(
       `/api/books/${bookId}/editorial/findings`,
@@ -322,11 +333,9 @@ test.describe("Full Writing Workflow Smoke Test", () => {
   });
 
   // ─── Step 9: Beta read → pass chapter ─────────────────────────
-  test("Step 9 — Beta reader finding and pass chapter", async ({
-    request,
-  }) => {
-    expect(bookId).toBeTruthy();
-    expect(chapterId).toBeTruthy();
+  test("Step 9 — Beta reader finding and pass chapter", async ({ request, book }) => {
+    const bookId = book.id;
+    const chapterId = await writtenChapterOne(request, bookId);
 
     const res = await request.post(
       `/api/books/${bookId}/editorial/findings`,
@@ -364,40 +373,40 @@ test.describe("Full Writing Workflow Smoke Test", () => {
   });
 
   // ─── Step 10: Export manuscript ────────────────────────────────
-  test("Step 10 — Export manuscript", async ({ request }) => {
-    expect(bookId).toBeTruthy();
+  test("Step 10 — Export manuscript", async ({ request, book }) => {
+    await writtenChapterOne(request, book.id);
 
-    const res = await request.post(`/api/books/${bookId}/export`, {
-      data: { format: "docx" },
-    });
-    // P2-66: with Pandoc present the export must succeed AND be the format
-    // asked for (the 09-19 defect answered 200 with a .md). Without it, the
-    // only honest answer is 502 CONVERSION_FAILED (P1-23), never a 500.
-    if (process.env.E2E_EXPECT_EXPORT === "1" || pandocInstalled()) {
-      expect(res.status()).toBe(200);
-      const result = await res.json();
+    // Wave 7 / D22: the export is a job on the worker. The route answers 202
+    // with its id; the status route is the owner's only.
+    const res = await request.post(`/api/books/${book.id}/export`, { data: { format: "docx" } });
+    expect(res.status()).toBe(202);
+    const { jobId } = await res.json();
+    expect(jobId).toBeTruthy();
+
+    const statusUrl = `/api/books/${book.id}/export/jobs/${jobId}`;
+    const first = await request.get(statusUrl);
+    expect(first.ok()).toBeTruthy();
+    expect(["queued", "running", "completed", "failed"]).toContain((await first.json()).state);
+
+    const foreign = await request.get(`/api/books/00000000-0000-4000-8000-000000000000/export/jobs/${jobId}`);
+    expect(foreign.status()).toBe(404);
+
+    // The conversion itself needs a worker with pandoc; this suite's CI runs
+    // none (CI's "Export integration" job converts with real pandoc + Typst).
+    // P2-66: on a full stack the file must be the format asked for.
+    if (process.env.E2E_EXPECT_EXPORT === "1") {
+      await expect
+        .poll(async () => (await (await request.get(statusUrl)).json()).state, { timeout: 120_000 })
+        .toBe("completed");
+      const { result } = await (await request.get(statusUrl)).json();
       expect(result.format).toBe("docx");
       expect(result.filename).toMatch(/\.docx$/);
-    } else {
-      expect(res.status()).toBe(502);
-      expect((await res.json()).code).toBe("CONVERSION_FAILED");
     }
   });
 
   // ─── Step 11: Series ──────────────────────────────────────────
   test("Step 11 — Create series and add books", async ({ request }) => {
-    const createRes = await request.post("/api/series", {
-      data: {
-        title: "Smoke Test Saga",
-        genre: "Fantasy",
-        seriesType: "TRILOGY",
-        plannedBooks: 3,
-      },
-    });
-    expect(createRes.status()).toBe(201);
-    const series = await createRes.json();
-    seriesId = series.id;
-    expect(seriesId).toBeTruthy();
+    const seriesId = await createSeries(request);
 
     // Add two books
     const book1 = await request.post(`/api/series/${seriesId}/books`, {
@@ -419,7 +428,7 @@ test.describe("Full Writing Workflow Smoke Test", () => {
 
   // ─── Step 12: Series bible ────────────────────────────────────
   test("Step 12 — Create series bible document", async ({ request }) => {
-    expect(seriesId).toBeTruthy();
+    const seriesId = await createSeries(request);
 
     const res = await request.post(`/api/series/${seriesId}/documents`, {
       data: {
@@ -435,7 +444,7 @@ test.describe("Full Writing Workflow Smoke Test", () => {
 
   // ─── Step 13: Series continuity ───────────────────────────────
   test("Step 13 — Create series continuity document", async ({ request }) => {
-    expect(seriesId).toBeTruthy();
+    const seriesId = await createSeries(request);
 
     const res = await request.post(`/api/series/${seriesId}/documents`, {
       data: {
@@ -450,10 +459,8 @@ test.describe("Full Writing Workflow Smoke Test", () => {
   });
 
   // ─── Step 14: Inline AI edit endpoint ─────────────────────────
-  test("Step 14 — Inline edit API returns suggestions", async ({
-    request,
-  }) => {
-    expect(bookId).toBeTruthy();
+  test("Step 14 — Inline edit API returns suggestions", async ({ request, book }) => {
+    const bookId = book.id;
 
     const res = await request.post(`/api/books/${bookId}/inline-edit`, {
       data: {
