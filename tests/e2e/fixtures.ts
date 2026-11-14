@@ -13,9 +13,10 @@ export interface TestBook {
  * that does not name `book` creates nothing.
  */
 export const test = base.extend<{ book: TestBook }>({
-  book: async ({ request }, use, testInfo) => {
+  // `provide` is Playwright's `use`; named so the React hooks lint rule does not read it as React.use.
+  book: async ({ request }, provide, testInfo) => {
     const book = await createBookViaApi(request, { name: uniqueName(testInfo.title.slice(0, 40)) });
-    await use(book);
+    await provide(book);
   },
 });
 
