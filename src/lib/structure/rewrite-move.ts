@@ -123,6 +123,7 @@ export async function draftRewriteMove(
   const move = await db.structureMove.findFirst({ where: { id: moveId, bookId: ctx.bookId } });
   if (!move) return fail("move_not_found", "This proposal no longer exists.");
   if (!isRewriteKind(move.kind)) return fail("unknown_kind", "Only a trim or an expansion has a draft.");
+  if (move.kind === "rewrite") return fail("unknown_kind", "A background rewrite arrives drafted; there is nothing to re-draft.");
   const staleBefore = new Date(Date.now() - DRAFTING_STALE_MS);
   const staleClaim = move.status === "drafting" && !!move.updatedAt && move.updatedAt < staleBefore;
   if (move.status !== "pending" && !staleClaim) {
@@ -291,7 +292,9 @@ export async function applyRewriteMove(moveId: string, ctx: RewriteContext): Pro
   }
 
   const summary =
-    input.kind === "hook"
+    input.kind === "rewrite"
+      ? `Replaced chapter ${chapter.chapterNumber} with the background draft (${meta.baseWords} to ${meta.draftWords} words).`
+      : input.kind === "hook"
       ? `Rewrote the ${input.scope ?? "ending"} of chapter ${chapter.chapterNumber}.`
       : `${input.kind === "trim" ? "Trimmed" : "Expanded"} chapter ${chapter.chapterNumber} from ${meta.baseWords} to ${meta.draftWords} words.`;
   try {
@@ -372,11 +375,19 @@ export async function restoreRewrite(
   });
 }
 
-/** Drop a draft the writer does not want; the move waits again. */
+/**
+ * Drop a draft the writer does not want; the move waits again. A background
+ * rewrite has nothing to re-draft from, so discarding it rejects it.
+ */
 export async function discardRewriteDraft(moveId: string, bookId: string): Promise<boolean> {
+  const move = await db.structureMove.findFirst({ where: { id: moveId, bookId }, select: { kind: true } });
+  const data =
+    move?.kind === "rewrite"
+      ? { status: "rejected", decidedAt: new Date() }
+      : { status: "pending", draft: null, draftMeta: null };
   const { count } = await db.structureMove.updateMany({
     where: { id: moveId, bookId, status: "drafted" },
-    data: { status: "pending", draft: null, draftMeta: null },
+    data,
   });
   return count > 0;
 }

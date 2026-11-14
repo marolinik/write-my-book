@@ -24,19 +24,11 @@
  *  p. Agent panel rendering via toggle      (UI-06)
  */
 
-import { test, expect } from "./fixtures";
-import {
-  createBookViaApi,
-  createChapterViaApi,
-  createFindingViaApi,
-} from "./fixtures";
+import { test, expect, createChapterViaApi, createFindingViaApi } from "./fixtures";
 
-test.describe.serial("Writer Journey — UI Flows", () => {
-  // Shared state across serial tests
-  let bookId: string;
-  let chapterId: string;
-  let findingId: string;
-
+// P2-67 (Wave 7): no serial mode. Every test that needs a book gets its own
+// (the `book` fixture) and creates the chapter or finding it uses.
+test.describe("Writer Journey — UI Flows", () => {
   // Mark the whole suite as slow — browser tests take longer
   test.slow();
 
@@ -54,29 +46,20 @@ test.describe.serial("Writer Journey — UI Flows", () => {
   });
 
   // ─── b. Create book via API + navigate to overview ────────────────
-  test("Can create a book and view its overview", async ({
-    page,
-    request,
-  }) => {
-    const book = await createBookViaApi(request, { name: "E2E Test Novel" });
-    bookId = book.id;
-    expect(bookId).toBeTruthy();
-
-    await page.goto(`/books/${bookId}`);
+  test("Can create a book and view its overview", async ({ page, book }) => {
+    await page.goto(`/books/${book.id}`);
     await page.waitForLoadState("networkidle");
 
     // The book name should appear as the page heading (it also renders in
     // the sidebar and breadcrumb — a bare getByText is a strict-mode violation)
     await expect(
-      page.getByRole("heading", { level: 1, name: "E2E Test Novel" })
+      page.getByRole("heading", { level: 1, name: book.name })
     ).toBeVisible();
   });
 
   // ─── c. Setup wizard shows all steps ──────────────────────────────
-  test("Setup wizard shows all steps", async ({ page }) => {
-    expect(bookId).toBeTruthy();
-
-    await page.goto(`/books/${bookId}/setup`);
+  test("Setup wizard shows all steps", async ({ page, book }) => {
+    await page.goto(`/books/${book.id}/setup`);
     await page.waitForLoadState("networkidle");
 
     // The setup wizard renders step buttons with step titles (hidden on small screens via sm:inline)
@@ -91,16 +74,13 @@ test.describe.serial("Writer Journey — UI Flows", () => {
   });
 
   // ─── d. Chapter editor loads ──────────────────────────────────────
-  test("Chapter editor loads with toolbar", async ({ page, request }) => {
-    expect(bookId).toBeTruthy();
-
-    const chapter = await createChapterViaApi(request, bookId, {
+  test("Chapter editor loads with toolbar", async ({ page, request, book }) => {
+    const chapter = await createChapterViaApi(request, book.id, {
       chapterNumber: 1,
       title: "Opening Scene",
     });
-    chapterId = chapter.id;
 
-    await page.goto(`/books/${bookId}/chapters/${chapterId}`);
+    await page.goto(`/books/${book.id}/chapters/${chapter.id}`);
     await page.waitForLoadState("networkidle");
 
     // Editor area — TipTap renders a contenteditable div with class ProseMirror
@@ -111,10 +91,8 @@ test.describe.serial("Writer Journey — UI Flows", () => {
   });
 
   // ─── e. Editorial page renders with filters ───────────────────────
-  test("Editorial page renders with filters", async ({ page }) => {
-    expect(bookId).toBeTruthy();
-
-    await page.goto(`/books/${bookId}/editorial`);
+  test("Editorial page renders with filters", async ({ page, book }) => {
+    await page.goto(`/books/${book.id}/editorial`);
     await page.waitForLoadState("networkidle");
 
     // The editorial page heading
@@ -131,10 +109,8 @@ test.describe.serial("Writer Journey — UI Flows", () => {
   });
 
   // ─── f. Transfer page shows import and export tabs ────────────────
-  test("Transfer page shows import and export tabs", async ({ page }) => {
-    expect(bookId).toBeTruthy();
-
-    await page.goto(`/books/${bookId}/transfer`);
+  test("Transfer page shows import and export tabs", async ({ page, book }) => {
+    await page.goto(`/books/${book.id}/transfer`);
     await page.waitForLoadState("networkidle");
 
     // Tabs rendered by radix TabsTrigger — look for "Import" and "Export" text
@@ -143,10 +119,8 @@ test.describe.serial("Writer Journey — UI Flows", () => {
   });
 
   // ─── g. Reports page shows tab structure ──────────────────────────
-  test("Reports page shows tab structure", async ({ page }) => {
-    expect(bookId).toBeTruthy();
-
-    await page.goto(`/books/${bookId}/reports`);
+  test("Reports page shows tab structure", async ({ page, book }) => {
+    await page.goto(`/books/${book.id}/reports`);
     await page.waitForLoadState("networkidle");
 
     // Reports page has 5 tabs: analytics, continuity, market, edits, documents
@@ -158,12 +132,8 @@ test.describe.serial("Writer Journey — UI Flows", () => {
   });
 
   // ─── h. Sidebar navigation works and highlights active page ───────
-  test("Sidebar navigation works and highlights active page", async ({
-    page,
-  }) => {
-    expect(bookId).toBeTruthy();
-
-    await page.goto(`/books/${bookId}/editorial`);
+  test("Sidebar navigation works and highlights active page", async ({ page, book }) => {
+    await page.goto(`/books/${book.id}/editorial`);
     await page.waitForLoadState("networkidle");
 
     // The sidebar uses data-sidebar="menu-button" with data-active attribute
@@ -214,17 +184,15 @@ test.describe.serial("Writer Journey — UI Flows", () => {
   });
 
   // ─── j. Orphan routes redirect ────────────────────────────────────
-  test("Orphan routes redirect correctly", async ({ page }) => {
-    expect(bookId).toBeTruthy();
-
+  test("Orphan routes redirect correctly", async ({ page, book }) => {
     // /import redirects to /transfer
-    await page.goto(`/books/${bookId}/import`);
+    await page.goto(`/books/${book.id}/import`);
     await page.waitForLoadState("networkidle");
     await expect(page).toHaveURL(/transfer/);
 
     // /documents does NOT redirect — it is a real page (DocumentsLibrary)
     // Just verify it loads without 404
-    await page.goto(`/books/${bookId}/documents`);
+    await page.goto(`/books/${book.id}/documents`);
     await page.waitForLoadState("networkidle");
     // Should show some content — not a 404 page
     const body = page.locator("body");
@@ -232,15 +200,11 @@ test.describe.serial("Writer Journey — UI Flows", () => {
   });
 
   // ─── k. 3-panel layout with sidebar, content, and agent elements ──
-  test("3-panel layout renders with sidebar, content, and agent elements", async ({
-    page,
-  }) => {
-    expect(bookId).toBeTruthy();
-
+  test("3-panel layout renders with sidebar, content, and agent elements", async ({ page, book }) => {
     // Set a wide viewport to ensure desktop layout
     await page.setViewportSize({ width: 1600, height: 900 });
 
-    await page.goto(`/books/${bookId}`);
+    await page.goto(`/books/${book.id}`);
     await page.waitForLoadState("networkidle");
 
     // 1. Sidebar is visible — shadcn Sidebar uses data-sidebar="sidebar"
@@ -286,10 +250,8 @@ test.describe.serial("Writer Journey — UI Flows", () => {
   });
 
   // ─── l. Import tab shows dropzone and format info ─────────────────
-  test("Import tab shows dropzone and format info", async ({ page }) => {
-    expect(bookId).toBeTruthy();
-
-    await page.goto(`/books/${bookId}/transfer`);
+  test("Import tab shows dropzone and format info", async ({ page, book }) => {
+    await page.goto(`/books/${book.id}/transfer`);
     await page.waitForLoadState("networkidle");
 
     // Ensure import tab is selected (it's the default)
@@ -313,12 +275,8 @@ test.describe.serial("Writer Journey — UI Flows", () => {
   });
 
   // ─── m. Chat with Coach CTA opens agent panel ─────────────────────
-  test("Setup wizard Chat with Coach CTA opens agent panel", async ({
-    page,
-  }) => {
-    expect(bookId).toBeTruthy();
-
-    await page.goto(`/books/${bookId}/setup`);
+  test("Setup wizard Chat with Coach CTA opens agent panel", async ({ page, book }) => {
+    await page.goto(`/books/${book.id}/setup`);
     await page.waitForLoadState("networkidle");
 
     // The "Chat with Coach" button is rendered in the setup page
@@ -379,19 +337,18 @@ test.describe.serial("Writer Journey — UI Flows", () => {
   });
 
   // ─── n. Apply and dismiss findings via editorial UI ────────────────
-  test("Apply and dismiss findings via editorial UI", async ({
-    page,
-    request,
-  }) => {
-    expect(bookId).toBeTruthy();
-    expect(chapterId).toBeTruthy();
+  test("Apply and dismiss findings via editorial UI", async ({ page, request, book }) => {
+    const chapter = await createChapterViaApi(request, book.id, {
+      chapterNumber: 1,
+      title: "Opening Scene",
+    });
 
     // Seed chapter content containing the finding's originalText — auto-apply
     // replaces that exact text in the chapter and 409s when it's absent.
     // Test-setup writer → changeSource "system" so a Playwright retry (doc
     // already exists) is not rejected by the D-47 versionless-CAS guard.
     await request.put(
-      `/api/books/${bookId}/chapters/${chapterId}/content`,
+      `/api/books/${book.id}/chapters/${chapter.id}/content`,
       {
         data: {
           markdown:
@@ -402,7 +359,7 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     );
 
     // Create a finding with originalText + suggestedText (auto-appliable)
-    const finding = await createFindingViaApi(request, bookId, {
+    const finding = await createFindingViaApi(request, book.id, {
       chapterNumber: 1,
       agentType: "dev-editor",
       severity: "important",
@@ -412,10 +369,9 @@ test.describe.serial("Writer Journey — UI Flows", () => {
       suggestedText: "The day dragged on.",
       position: { startOffset: 0, endOffset: 25 },
     });
-    findingId = finding.id;
-    expect(findingId).toBeTruthy();
+    expect(finding.id).toBeTruthy();
 
-    await page.goto(`/books/${bookId}/editorial`);
+    await page.goto(`/books/${book.id}/editorial`);
     await page.waitForLoadState("networkidle");
 
     // Wait for findings to load — look for the finding description text
@@ -461,10 +417,8 @@ test.describe.serial("Writer Journey — UI Flows", () => {
   });
 
   // ─── o. Editorial findings filters are interactive ────────────────
-  test("Editorial findings filters are interactive", async ({ page }) => {
-    expect(bookId).toBeTruthy();
-
-    await page.goto(`/books/${bookId}/editorial`);
+  test("Editorial findings filters are interactive", async ({ page, book }) => {
+    await page.goto(`/books/${book.id}/editorial`);
     await page.waitForLoadState("networkidle");
 
     // Filters are rendered as Select components with combobox role
@@ -484,8 +438,7 @@ test.describe.serial("Writer Journey — UI Flows", () => {
     await expect(dismissedOption).toBeVisible();
     await dismissedOption.click();
 
-    // After filtering to dismissed, the finding from test (n) should appear
-    // (it was dismissed in the previous test)
+    // The dropdown closes once a status is chosen.
     await expect(page.getByRole("listbox")).toBeHidden();
 
     // Now click "Reset all" to clear filters
@@ -499,10 +452,8 @@ test.describe.serial("Writer Journey — UI Flows", () => {
   });
 
   // ─── p. Agent panel shows rendering via toggle ────────────────────
-  test("Agent panel opens via header toggle", async ({ page }) => {
-    expect(bookId).toBeTruthy();
-
-    await page.goto(`/books/${bookId}`);
+  test("Agent panel opens via header toggle", async ({ page, book }) => {
+    await page.goto(`/books/${book.id}`);
     await page.waitForLoadState("networkidle");
 
     // Set wide viewport so we get desktop layout

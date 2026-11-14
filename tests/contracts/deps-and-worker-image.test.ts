@@ -52,6 +52,22 @@ describe("worker image (P2-84)", () => {
   });
 });
 
+describe("the worker does not load Next (Wave 7 Task 5)", () => {
+  it("the shared logger reports through @sentry/node, not @sentry/nextjs", () => {
+    const logger = readFileSync(join(ROOT, "src", "lib", "logger.ts"), "utf8");
+    expect(logger).not.toContain("@sentry/nextjs");
+    expect(logger).toContain("@sentry/node");
+  });
+
+  it("the worker runtime drops next, @next/* and @sentry/nextjs from node_modules", () => {
+    const dockerfile = readFileSync(join(ROOT, "Dockerfile.worker"), "utf8");
+    const prodDeps = dockerfile.slice(dockerfile.indexOf("AS prod-deps"), dockerfile.indexOf("AS builder"));
+    expect(prodDeps).toMatch(/rm -rf[^\n]*node_modules\/next\b/);
+    expect(prodDeps).toMatch(/rm -rf[^\n]*node_modules\/@next\b/);
+    expect(prodDeps).toMatch(/rm -rf[^\n]*node_modules\/@sentry\/nextjs\b/);
+  });
+});
+
 describe("web image (Wave 6 CI)", () => {
   it("every repository directory the Dockerfile copies from the build exists in the tree", () => {
     const dockerfile = readFileSync(join(ROOT, "Dockerfile"), "utf8");
@@ -60,5 +76,25 @@ describe("web image (Wave 6 CI)", () => {
     expect(copied).toContain("public");
     // An emptied public/ (git keeps no empty directory) broke `docker build`.
     for (const dir of copied) expect(existsSync(join(ROOT, dir)), dir).toBe(true);
+  });
+});
+
+describe("export tools in both images (Wave 7 / D22)", () => {
+  it("the worker image carries the web image's export-tools stage, pins included", () => {
+    const stage = (file: string) => {
+      const text = readFileSync(join(ROOT, file), "utf8").replace(/\r\n/g, "\n");
+      const start = text.indexOf("FROM base AS export-tools");
+      const end = text.indexOf("\nFROM ", start + 1);
+      // Instructions only: comments between stages differ by file and do not matter.
+      return text
+        .slice(start, end)
+        .split("\n")
+        .filter((line) => line.trim() !== "" && !line.trim().startsWith("#"))
+        .join("\n");
+    };
+    expect(stage("Dockerfile.worker")).toBe(stage("Dockerfile"));
+    const worker = readFileSync(join(ROOT, "Dockerfile.worker"), "utf8");
+    expect(worker).toContain("FROM export-tools AS runner");
+    expect(worker).toContain("COPY --from=builder /app/export-templates ./export-templates");
   });
 });

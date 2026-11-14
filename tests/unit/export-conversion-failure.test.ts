@@ -81,30 +81,31 @@ describe("a failed conversion", () => {
     expect(writes).toEqual([]);
   });
 
-  it("the route answers 502 CONVERSION_FAILED and never the temp path or pandoc's message", async () => {
-    // The pipeline half is proven above; here the route's mapping runs for real
-    // on the real error class the pipeline throws.
-    vi.doMock("@/lib/storage", () => ({ getBookStorage: () => memoryStorage().storage }));
+  it("the export worker reports CONVERSION_FAILED and never the temp path or pandoc's message (Wave 7)", async () => {
+    // The pipeline half is proven above; here the worker's mapping runs for
+    // real on the real error class the pipeline throws.
     vi.resetModules();
     const pipeline = await import("@/lib/import-export/export-pipeline");
-    vi.doMock("@/lib/import-export/export-pipeline", () => ({
-      ...pipeline,
-      exportManuscript: async () => {
+    vi.doMock("@/lib/import-export/run-export", () => ({
+      runBookExport: async () => {
         throw new pipeline.ExportConversionError(String(h.pandocError.message));
       },
+      runSeriesExport: vi.fn(),
     }));
-    const { POST } = await import("@/app/api/books/[id]/export/route");
-    const res = await POST(
-      new NextRequest("http://t/api/books/b1/export", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ format: "epub" }),
-      }),
-      { params: Promise.resolve({ id: "b1" }) }
-    );
-    expect(res.status).toBe(502);
-    const body = await res.json();
-    expect(body).toEqual({ error: "Export failed", code: "CONVERSION_FAILED" });
-    expect(JSON.stringify(body)).not.toMatch(/tmp|YAML|pandoc/);
+    const released: string[] = [];
+    vi.doMock("@/lib/queue/export-queue", () => ({
+      refreshExportSlot: async () => undefined,
+      releaseExportSlot: async (u: string, jobId: string) => void released.push(`${u}:${jobId}`),
+    }));
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const { processExportJob } = await import("@/lib/queue/export-worker");
+    const failure = await processExportJob({
+      id: "j1",
+      data: { kind: "book", userId: "u1", targetId: "b1", request: { format: "epub" } },
+    } as never).catch((e: unknown) => e);
+    expect((failure as Error).name).toBe("UnrecoverableError");
+    expect((failure as Error).message).toBe("CONVERSION_FAILED");
+    expect((failure as Error).message).not.toMatch(/tmp|YAML|pandoc/);
+    expect(released).toEqual(["u1:j1"]);
   });
 });

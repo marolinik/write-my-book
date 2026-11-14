@@ -275,16 +275,57 @@ export type SaveSnapshot = (snapshot: PendingSaveSnapshot) => Promise<unknown>;
  */
 export async function flushPendingSave(
   snapshot: PendingSaveSnapshot | null,
-  save: SaveSnapshot
+  save: SaveSnapshot,
+  inFlight: InFlightSave | null = null
 ): Promise<"saved" | "clean" | "failed"> {
   if (!snapshot) return "clean";
   try {
-    await save(snapshot);
+    // Wave 7: a PUT still in flight carries the same expectedVersion the
+    // snapshot captured; sent alongside, the snapshot would 409 against it.
+    // Wait for it and send against the version it produced. The store cannot
+    // tell us: by now it belongs to the next chapter and drops that result.
+    // Only a PUT of THIS chapter moves this snapshot's version (Wave 7
+    // review): another chapter's PUT is neither awaited nor stamped.
+    const versionAfter = inFlight && inFlight.chapterId === snapshot.chapterId ? await inFlight.settled : undefined;
+    await save(versionAfter === undefined ? snapshot : { ...snapshot, documentVersion: versionAfter });
     return "saved";
   } catch (error) {
     console.error(`[editor] saving chapter ${snapshot.chapterId} on the way out failed:`, error);
     return "failed";
   }
+}
+
+/** A pane's PUT in flight: its chapter, and the version it produced (undefined if it failed). */
+export interface InFlightSave {
+  chapterId: string | null;
+  settled: Promise<number | undefined>;
+}
+
+export interface InFlightSaveRef {
+  current: InFlightSave | null;
+}
+
+/**
+ * Wave 7: remember a PUT while it is in flight so a flush can wait for it
+ * instead of racing it with the same version stamp. Never rejects; clears
+ * itself when it settles (unless a newer PUT has replaced it).
+ */
+export function trackInFlightSave(
+  ref: InFlightSaveRef,
+  request: Promise<{ version?: number | null }>,
+  chapterId: string | null
+): void {
+  const entry: InFlightSave = {
+    chapterId,
+    settled: request.then(
+      (res) => res.version ?? undefined,
+      () => undefined
+    ),
+  };
+  ref.current = entry;
+  void entry.settled.then(() => {
+    if (ref.current === entry) ref.current = null;
+  });
 }
 
 const pendingFlushers = new Set<() => Promise<void>>();

@@ -60,8 +60,10 @@ class Logger {
 
     // Send to Sentry in production
     if (this.sentryEnabled && process.env.NODE_ENV === 'production') {
-      // Dynamic import to avoid bundling Sentry in client
-      import('@sentry/nextjs')
+      // The Node SDK, not the Next one: the worker shares this logger and its
+      // image does not carry Next (Wave 7). On the web server the Next SDK is
+      // built on the Node SDK, so this reaches the same initialised client.
+      import('@sentry/node')
         .then((Sentry) => {
           Sentry.captureException(errorObj, {
             extra: context,

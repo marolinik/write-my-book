@@ -40,6 +40,7 @@ export const API_ERROR_CODES = [
   "CUSTOM_PROVIDER_LIMIT",
   "SESSION_ALREADY_RUNNING",
   "IMPORT_PARTIAL",
+  "IMPORT_ROLLED_BACK",
 ] as const;
 
 export type ApiErrorCode = (typeof API_ERROR_CODES)[number];

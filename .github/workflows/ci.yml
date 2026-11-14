@@ -203,5 +203,17 @@ jobs:
         run: docker build -f Dockerfile -t wmb-web:ci .
       - name: Build the worker image
         run: docker build -f Dockerfile.worker -t wmb-worker:ci .
+      - name: The worker image carries no Next (Wave 7 Task 5)
+        run: |
+          # Budget: 408 MB measured on 2026-11-14 (was ~1.2 GB with Next);
+          # ~20% headroom. Raise it on purpose, not by accident.
+          size=$(docker image inspect wmb-worker:ci --format '{{.Size}}')
+          echo "worker image: $size bytes (budget 500000000)"
+          if [ "$size" -gt 500000000 ]; then echo "the worker image is over its 500 MB budget"; exit 1; fi
+          docker run --rm --entrypoint sh wmb-worker:ci -c '
+            for p in next @next @sentry/nextjs; do
+              if [ -e "node_modules/$p" ]; then echo "node_modules/$p is in the worker image"; exit 1; fi
+            done
+            node -e "require(\"./dist-worker/lib/logger.js\")"'
       - name: The web image carries pandoc, Typst and the fonts
         run: docker run --rm -i --entrypoint sh wmb-web:ci < scripts/check-export-fonts.sh

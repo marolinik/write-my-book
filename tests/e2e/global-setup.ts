@@ -1,5 +1,6 @@
 import "dotenv/config";
 import pg from "pg";
+import IORedis from "ioredis";
 
 const E2E_CLERK_ID = "user_test_e2e";
 
@@ -13,6 +14,33 @@ const LANG_PERSONA = {
   email: "qa.lang@qa.local",
   name: "Lang Smoke",
 } as const;
+
+/**
+ * P2-67 (Wave 7): the last-key protection test needs a writer with exactly
+ * one key. CI cannot add one through the API (the provider rejects a fake
+ * key), so this persona is seeded with one row. The guard counts rows and
+ * the list flags an undecryptable key instead of failing (P2-21), so the
+ * placeholder ciphertext is never decrypted by the test.
+ */
+const KEYS_PERSONA = {
+  clerkId: "user_qa_keys",
+  email: "qa.keys@qa.local",
+  name: "Last Key",
+} as const;
+
+async function freeExportSlot(userId: string): Promise<void> {
+  const url = process.env.REDIS_URL;
+  if (!url) return;
+  const redis = new IORedis(url, { lazyConnect: true, maxRetriesPerRequest: 1, connectTimeout: 5_000 });
+  try {
+    await redis.connect();
+    await redis.del(`export:running:${userId}`);
+  } catch (error) {
+    console.warn("[global-setup] could not free the export slot (an export may answer 429):", error);
+  } finally {
+    redis.disconnect();
+  }
+}
 
 /**
  * Global setup: seed the E2E test user via raw SQL.
@@ -81,6 +109,12 @@ export default async function globalSetup() {
 
     console.log("[global-setup] Test user seeded:", E2E_CLERK_ID, "(plan: professional/active)");
 
+    // Wave 7 / D22: one export per writer at a time, held in Redis until a
+    // worker finishes the job. This suite's server runs no worker, so a
+    // previous local run's export holds the slot for its 10-minute TTL and
+    // the next run's export would answer 429. Free it.
+    await freeExportSlot(user.id);
+
     // Dedicated language persona for book-development-language-smoke.spec.ts.
     // Upsert only (no wipe): its books carry per-run unique names, and the
     // spec flips this user's language, so it must stay a separate identity.
@@ -102,6 +136,24 @@ export default async function globalSetup() {
       [langUser.id]
     );
     console.log("[global-setup] Language persona seeded:", LANG_PERSONA.clerkId);
+
+    const {
+      rows: [keysUser],
+    } = await client.query(
+      `INSERT INTO users (id, clerk_id, email, display_name, default_model, created_at, updated_at)
+       VALUES (gen_random_uuid(), $1, $2, $3, $4, NOW(), NOW())
+       ON CONFLICT (clerk_id)
+       DO UPDATE SET email = $2, display_name = $3, default_model = $4, updated_at = NOW()
+       RETURNING id`,
+      [KEYS_PERSONA.clerkId, KEYS_PERSONA.email, KEYS_PERSONA.name, E2E_DEFAULT_MODEL]
+    );
+    await client.query(`DELETE FROM api_keys WHERE user_id = $1`, [keysUser.id]);
+    await client.query(
+      `INSERT INTO api_keys (id, user_id, provider, encrypted_key, label, is_default, created_at)
+       VALUES (gen_random_uuid(), $1, 'anthropic', 'e2e-placeholder-not-a-ciphertext', 'E2E last key', true, NOW())`,
+      [keysUser.id]
+    );
+    console.log("[global-setup] Last-key persona seeded with one key:", KEYS_PERSONA.clerkId);
   } finally {
     client.release();
     await pool.end();

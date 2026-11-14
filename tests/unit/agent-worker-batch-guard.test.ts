@@ -29,7 +29,7 @@ const h = vi.hoisted(() => {
     redis,
     db: {
       // findUnique: the P1-14 rerun guard reads the row; null = a fresh session.
-      agentSession: { update: vi.fn(), updateMany: vi.fn(), findUnique: vi.fn(async () => null) },
+      agentSession: { update: vi.fn(), updateMany: vi.fn(), findUnique: vi.fn(async () => ({ status: "queued" })) },
       batchRun: { findUnique: vi.fn() },
       apiKey: { findMany: vi.fn() },
       book: { findFirst: vi.fn() },

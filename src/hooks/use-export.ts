@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { fetchJson } from "@/lib/api-client";
+import { awaitExportJob } from "@/lib/import-export/await-export-job";
 import { responseError } from "@/lib/api/describe-api-error";
 
 // ─── Types ──────────────────────────────────────────────────────
@@ -97,17 +98,21 @@ export function useExportManuscript(bookId: string) {
   const qc = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: {
+    mutationFn: async (data: {
       format: "docx" | "pdf" | "epub";
       isDraft?: boolean;
       sceneBreakGlyph?: string;
       template?: string;
-    }) =>
-      fetchJson<ExportResultResponse>(`/api/books/${bookId}/export`, {
+    }) => {
+      // Wave 7 / D22: the export is a job on the worker; wait for it here so the
+      // screen keeps its "export, then show the result" flow.
+      const { jobId } = await fetchJson<{ jobId: string }>(`/api/books/${bookId}/export`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-      }),
+      });
+      return awaitExportJob<ExportResultResponse>(`/api/books/${bookId}/export/jobs/${jobId}`);
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["export", bookId, "history"] });
     },

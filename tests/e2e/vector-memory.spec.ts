@@ -1,4 +1,4 @@
-import { test, expect, createBookViaApi, uniqueName } from "./fixtures";
+import { test, expect } from "./fixtures";
 
 /**
  * Vector Memory API E2E Tests
@@ -9,28 +9,13 @@ import { test, expect, createBookViaApi, uniqueName } from "./fixtures";
  * - Per-book memory info via book detail endpoint
  * - Memory rebuild endpoint validation
  * - Memory clear endpoint validation
+ *
+ * P2-67 (Wave 7): every test that needs a book gets its own (fixture)
+ * instead of one a "Setup" test shared in serial mode.
  */
 test.describe("Vector Memory API", () => {
-  test.describe.configure({ mode: "serial" });
-
-  let bookId: string;
-  let qdrantAvailable = true;
-
-  // ─── Setup: Create a test book ──────────────────────────────
-  test("Setup — Create test book for memory tests", async ({ request }) => {
-    const book = await createBookViaApi(request, {
-      name: uniqueName("Vector Memory Test Book"),
-      genre: "Fantasy",
-      language: "en",
-    });
-    bookId = book.id;
-    expect(bookId).toBeTruthy();
-  });
-
   // ─── Test 1: Global memory stats shape ──────────────────────
-  test("GET /api/memory/stats returns expected response shape", async ({
-    request,
-  }) => {
+  test("GET /api/memory/stats returns expected response shape", async ({ request }) => {
     const res = await request.get("/api/memory/stats");
 
     if (res.ok()) {
@@ -54,10 +39,8 @@ test.describe("Vector Memory API", () => {
         expect(typeof data.embeddingTokens).toBe("number");
       }
 
-      qdrantAvailable = data.qdrantHealthy;
     } else if (res.status() === 500) {
       // Qdrant connection failure — endpoint errored, that's a valid test result
-      qdrantAvailable = false;
       const data = await res.json();
       expect(data).toHaveProperty("error");
     } else {
@@ -67,35 +50,28 @@ test.describe("Vector Memory API", () => {
   });
 
   // ─── Test 2: Per-book memory stats ──────────────────────────
-  test("GET /api/memory/stats?bookId= returns per-book shape", async ({
-    request,
-  }) => {
-    expect(bookId).toBeTruthy();
-
+  test("GET /api/memory/stats?bookId= returns per-book shape", async ({ request, book }) => {
     const res = await request.get(
-      `/api/memory/stats?bookId=${bookId}`
+      `/api/memory/stats?bookId=${book.id}`
     );
 
     if (res.ok()) {
       const data = await res.json();
       expect(data).toHaveProperty("bookId");
-      expect(data.bookId).toBe(bookId);
+      expect(data.bookId).toBe(book.id);
       expect(data).toHaveProperty("chunkCount");
       expect(typeof data.chunkCount).toBe("number");
       // New book should have 0 chunks
       expect(data.chunkCount).toBe(0);
     } else if (res.status() === 500) {
       // Qdrant unavailable — acceptable
-      qdrantAvailable = false;
     } else {
       expect([401, 403]).toContain(res.status());
     }
   });
 
   // ─── Test 3: Memory rebuild requires bookId ─────────────────
-  test("POST /api/memory/rebuild with empty body returns 400", async ({
-    request,
-  }) => {
+  test("POST /api/memory/rebuild with empty body returns 400", async ({ request }) => {
     const res = await request.post("/api/memory/rebuild", {
       data: {},
     });
@@ -108,13 +84,9 @@ test.describe("Vector Memory API", () => {
   });
 
   // ─── Test 4: Memory rebuild with valid bookId ───────────────
-  test("POST /api/memory/rebuild with valid bookId responds", async ({
-    request,
-  }) => {
-    expect(bookId).toBeTruthy();
-
+  test("POST /api/memory/rebuild with valid bookId responds", async ({ request, book }) => {
     const res = await request.post("/api/memory/rebuild", {
-      data: { bookId },
+      data: { bookId: book.id },
     });
 
     if (res.ok()) {
@@ -139,13 +111,9 @@ test.describe("Vector Memory API", () => {
   });
 
   // ─── Test 5: Memory clear requires confirmation ─────────────
-  test("POST /api/memory/clear with missing confirm returns 400", async ({
-    request,
-  }) => {
-    expect(bookId).toBeTruthy();
-
+  test("POST /api/memory/clear with missing confirm returns 400", async ({ request, book }) => {
     const res = await request.post("/api/memory/clear", {
-      data: { bookId },
+      data: { bookId: book.id },
     });
 
     if (res.status() !== 401) {
@@ -157,13 +125,9 @@ test.describe("Vector Memory API", () => {
   });
 
   // ─── Test 6: Memory clear with valid data ───────────────────
-  test("POST /api/memory/clear with valid data responds", async ({
-    request,
-  }) => {
-    expect(bookId).toBeTruthy();
-
+  test("POST /api/memory/clear with valid data responds", async ({ request, book }) => {
     const res = await request.post("/api/memory/clear", {
-      data: { bookId, confirm: true },
+      data: { bookId: book.id, confirm: true },
     });
 
     if (res.ok()) {
@@ -182,17 +146,13 @@ test.describe("Vector Memory API", () => {
   });
 
   // ─── Test 7: Book detail includes chapters (memory context) ─
-  test("GET /api/books/:id includes chapters and document count", async ({
-    request,
-  }) => {
-    expect(bookId).toBeTruthy();
-
-    const res = await request.get(`/api/books/${bookId}`);
+  test("GET /api/books/:id includes chapters and document count", async ({ request, book }) => {
+    const res = await request.get(`/api/books/${book.id}`);
 
     if (res.ok()) {
       const data = await res.json();
       expect(data).toHaveProperty("id");
-      expect(data.id).toBe(bookId);
+      expect(data.id).toBe(book.id);
       // Book should include chapters array and document count
       expect(data).toHaveProperty("chapters");
       expect(Array.isArray(data.chapters)).toBeTruthy();

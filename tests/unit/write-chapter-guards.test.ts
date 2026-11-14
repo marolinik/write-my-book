@@ -48,7 +48,7 @@ beforeEach(() => {
 
 describe("WriteChapter version guard (P2-19)", () => {
   it("writes with the version the session read", async () => {
-    const c = ctx({ overwriteApproved: true });
+    const c = ctx({ interactive: true, overwriteApproved: true });
     await executeTool("ReadChapter", c as never, { chapterNumber: 3 });
     expect(c.chapterVersionsSeen.get(3)).toBe(4);
     await write(c);
@@ -57,7 +57,7 @@ describe("WriteChapter version guard (P2-19)", () => {
   });
 
   it("tells the agent when the chapter changed since it read it, and writes nothing", async () => {
-    const c = ctx({ overwriteApproved: true });
+    const c = ctx({ interactive: true, overwriteApproved: true });
     await executeTool("ReadChapter", c as never, { chapterNumber: 3 });
     c.documentService.update.mockRejectedValue(new VersionConflictError("doc3"));
     const out = await write(c);

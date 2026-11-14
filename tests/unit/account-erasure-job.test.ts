@@ -16,6 +16,9 @@ const h = vi.hoisted(() => ({
   purgeStorage: vi.fn(),
   redisDel: vi.fn(),
   redisKeys: vi.fn(),
+  redisScan: vi.fn(),
+  redisMget: vi.fn(),
+  stripe: null as null | { customers: { del: (id: string) => unknown } },
   removeAgentJob: vi.fn(),
   customersDel: vi.fn(),
 }));
@@ -26,15 +29,26 @@ vi.mock("@/lib/vector", () => ({ deleteBookChunks: (id: string) => h.deleteBookC
 vi.mock("@/lib/graph", () => ({ clearBookGraph: (id: string) => h.clearBookGraph(id) }));
 vi.mock("@/lib/storage", () => ({ getStorage: (prefix: string) => ({ prefix }) }));
 vi.mock("@/lib/storage/purge", () => ({ purgeStorage: (s: unknown) => h.purgeStorage(s) }));
-vi.mock("@/lib/billing", () => ({ stripe: { customers: { del: (id: string) => h.customersDel(id) } } }));
+vi.mock("@/lib/billing", () => ({
+  get stripe() {
+    return h.stripe;
+  },
+}));
 vi.mock("@/lib/queue/connection", () => ({
-  getAppConnection: () => ({ del: (...k: string[]) => h.redisDel(...k), keys: (p: string) => h.redisKeys(p) }),
+  getAppConnection: () => ({
+    del: (...k: string[]) => h.redisDel(...k),
+    keys: (p: string) => h.redisKeys(p),
+    scan: (...a: unknown[]) => h.redisScan(...a),
+    mget: (...k: string[]) => h.redisMget(...k),
+  }),
 }));
 vi.mock("@/lib/queue/agent-queue", () => ({
   agentQueue: { getJob: async (id: string) => ({ remove: () => h.removeAgentJob(id) }) },
 }));
 
-import { processErasureJob } from "@/lib/queue/erasure-worker";
+import { processErasureJob, SESSION_KEY_SUFFIXES } from "@/lib/queue/erasure-worker";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 
 const ROW = {
   id: "er_1",
@@ -62,6 +76,9 @@ beforeEach(() => {
   h.redisKeys.mockResolvedValue(["session:s1:messages", "session:s1:status"]);
   h.redisDel.mockResolvedValue(2);
   h.customersDel.mockResolvedValue({ id: "cus_1", deleted: true });
+  h.stripe = { customers: { del: (id: string) => h.customersDel(id) } };
+  h.redisScan.mockResolvedValue(["0", []]);
+  h.redisMget.mockResolvedValue([]);
 });
 
 const job = { data: { erasureId: "er_1" } } as never;
@@ -100,9 +117,71 @@ describe("processErasureJob", () => {
     expect(h.row?.status).toBe("done");
   });
 
+  it("Wave 7: deletes the session's keys by name, without KEYS", async () => {
+    await processErasureJob(job);
+    expect(h.redisKeys).not.toHaveBeenCalled();
+    expect(h.redisDel).toHaveBeenCalledWith("session:s1:status", "session:s1:messages", "session:s1:cancel");
+  });
+
+  it("Wave 7: deletes the approval:{approvalId} keys that belong to the account's sessions, across SCAN pages", async () => {
+    h.redisScan
+      .mockResolvedValueOnce(["17", ["approval:a1", "approval:a2"]])
+      .mockResolvedValueOnce(["0", ["approval:a3", "approval:a4"]]);
+    h.redisMget
+      .mockResolvedValueOnce([
+        JSON.stringify({ status: "pending", sessionId: "s1" }),
+        JSON.stringify({ status: "pending", sessionId: "someone-else" }),
+      ])
+      .mockResolvedValueOnce([JSON.stringify({ status: "modify", sessionId: "s1", message: "the writer's words" }), "not json"]);
+    await processErasureJob(job);
+    expect(h.redisScan).toHaveBeenCalledWith("0", "MATCH", "approval:*", "COUNT", expect.any(Number));
+    expect(h.redisScan).toHaveBeenCalledWith("17", "MATCH", "approval:*", "COUNT", expect.any(Number));
+    const deleted = h.redisDel.mock.calls.flat();
+    expect(deleted).toEqual(expect.arrayContaining(["approval:a1", "approval:a3"]));
+    expect(deleted).not.toContain("approval:a2");
+    expect(deleted).not.toContain("approval:a4");
+    expect(deleted).not.toContain("approval:s1");
+    expect(h.row?.status).toBe("done");
+  });
+
+  it("Wave 7: with a Stripe customer but Stripe unconfigured, the Stripe step is NOT done", async () => {
+    h.stripe = null;
+    await expect(processErasureJob(job)).rejects.toThrow(/stripe/);
+    expect(h.row?.status).toBe("pending");
+    expect(h.row?.doneStores).not.toContain("stripe");
+    expect(h.row?.doneStores).toEqual(expect.arrayContaining(["storage", "redis"]));
+  });
+
+  it("Wave 7: with no Stripe customer, an unconfigured Stripe has nothing to erase", async () => {
+    h.stripe = null;
+    h.row = { ...ROW, stripeCustomerId: null, doneStores: [] };
+    await processErasureJob(job);
+    expect(h.row?.status).toBe("done");
+  });
+
   it("does nothing for a row that is already done", async () => {
     h.row = { ...ROW, status: "done" };
     await processErasureJob(job);
     expect(h.deleteBookChunks).not.toHaveBeenCalled();
+  });
+});
+
+describe("session keys erasure knows about (Wave 7)", () => {
+  it("every session:{id}:<suffix> key the app writes is in SESSION_KEY_SUFFIXES", () => {
+    const src = join(__dirname, "..", "..", "src");
+    const found = new Set<string>();
+    const walk = (dir: string): void => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = join(dir, entry.name);
+        if (entry.isDirectory()) {
+          if (entry.name !== "generated") walk(full);
+        } else if (/\.tsx?$/.test(entry.name)) {
+          for (const m of readFileSync(full, "utf8").matchAll(/session:\$\{[^}]+\}:([a-z_-]+)/g)) found.add(m[1]);
+        }
+      }
+    };
+    walk(src);
+    expect(found.size).toBeGreaterThan(0);
+    expect([...found].filter((s) => !(SESSION_KEY_SUFFIXES as readonly string[]).includes(s))).toEqual([]);
   });
 });

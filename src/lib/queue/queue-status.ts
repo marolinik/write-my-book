@@ -8,14 +8,13 @@ import { utcDayKey } from "@/lib/billing/free-tier";
  * as "waiting", not as an outage (P1-16).
  */
 export async function queuePosition(jobId: string): Promise<number | null> {
-  const job = await agentQueue.getJob(jobId);
-  if (!job) return null;
-  const state = await job.getState();
-  if (state !== "waiting" && state !== "prioritized") return null;
-  // BullMQ lists the newest waiting job first.
-  const waiting = await agentQueue.getWaiting();
-  const index = waiting.findIndex((j) => j?.id === jobId);
-  return index === -1 ? null : waiting.length - index;
+  // Wave 7: read the place in Redis. The wait list holds job ids with the
+  // newest at the head (the worker takes from the tail); loading every
+  // waiting job per stream every 10 s was O(N^2) under a backlog. A job that
+  // is running, finished or gone is not in the list.
+  const client = await agentQueue.client;
+  const [index, length] = await Promise.all([client.lpos(agentQueue.keys.wait, jobId), client.llen(agentQueue.keys.wait)]);
+  return index === null ? null : length - index;
 }
 
 function timeout(ms: number): Promise<never> {

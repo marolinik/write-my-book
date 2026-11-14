@@ -1,17 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
-import { withExportSlot } from "@/lib/import-export/export-limits";
-import { ExportConversionError } from "@/lib/import-export/export-pipeline";
+import { enqueueExport } from "@/lib/queue/export-queue";
 import { requireUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getBookStorage } from "@/lib/storage";
 import { exportRequestSchema } from "@/lib/validation";
-import { exportManuscript } from "@/lib/import-export/export-pipeline";
 import { parseJsonBody, invalidJsonBodyResponse } from "@/lib/api/parse-json-body";
 import { zodErrorResponse } from "@/lib/api/zod-error";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
-/** POST /api/books/:id/export — trigger a manuscript export. */
+/** POST /api/books/:id/export — queue a manuscript export (202 + job id). */
 export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const user = await requireUser();
@@ -27,47 +25,15 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     const body = await parseJsonBody(req);
     const data = exportRequestSchema.parse(body);
 
-    const storage = getBookStorage(user.id, bookId);
-
-    // Real chapter titles live in the DB, not the manuscript markdown — thread
-    // them into the pipeline so headings/TOC/EPUB titles are correct (F9/F10).
-    const chapters = await db.chapter.findMany({
-      where: { bookId },
-      select: { chapterNumber: true, title: true },
-    });
-    const chapterTitles = new Map<number, string>();
-    for (const ch of chapters) {
-      if (ch.title) chapterTitles.set(ch.chapterNumber, ch.title);
-    }
-
-    // P2-76 / D19: one export per writer at a time; a second answers 429.
-    const slot = await withExportSlot(user.id, () => exportManuscript(
-      {
-        bookId,
-        userId: user.id,
-        format: data.format,
-        isDraft: data.isDraft,
-        sceneBreakGlyph: data.sceneBreakGlyph,
-        template: data.template,
-        chapterTitles,
-        // UDG round-8 (Igor/Olivera): thread the uploaded covers into the pipeline
-        // so the S3 cover binding (front + back) actually works in production exports.
-        coverUrl: book.coverUrl,
-        backCoverUrl: book.backCoverUrl,
-      },
-      storage,
-      book.name,
-      book.language
-    ));
-    if (!slot) {
+    // Wave 7 / D22: the conversion runs on the worker; one export per writer.
+    const queued = await enqueueExport({ kind: "book", userId: user.id, targetId: bookId, request: data });
+    if (!queued) {
       return NextResponse.json(
         { error: "An export is already running", code: "RATE_LIMITED" },
         { status: 429 }
       );
     }
-    const result = slot.value;
-
-    return NextResponse.json(result);
+    return NextResponse.json({ jobId: queued.jobId, status: "queued" }, { status: 202 });
   } catch (error) {
     const invalidJson = invalidJsonBodyResponse(error);
     if (invalidJson) return invalidJson;
@@ -76,12 +42,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
     }
     const zodRes = zodErrorResponse(error);
     if (zodRes) return zodRes;
-    if (error instanceof ExportConversionError) {
-      // P1-23: the writer is told it failed; the detail stays in the log.
-      return NextResponse.json({ error: "Export failed", code: "CONVERSION_FAILED" }, { status: 502 });
-    }
     console.error("POST /api/books/:id/export error:", error);
-    // P2-8: never echo error.message (storage hosts, temp paths, Prisma text).
     return NextResponse.json({ error: "Export failed", code: "EXPORT_FAILED" }, { status: 500 });
   }
 }

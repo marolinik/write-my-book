@@ -148,6 +148,15 @@ vi.mock("@/lib/queue/agent-queue", () => recorder("agentQueue"));
 vi.mock("@/lib/vector/qdrant-client", () => recorder("qdrant"));
 vi.mock("@/lib/graph/neo4j-client", () => recorder("neo4j"));
 vi.mock("bullmq", () => recorder("bullmq"));
+// Wave 7: export jobs are owner-checked in readOwnExportJob (export-jobs.test.ts);
+// here no job exists for another writer's ids.
+vi.mock("@/lib/queue/export-queue", () => ({
+  readOwnExportJob: async () => null,
+  enqueueExport: async () => {
+    h.touched.push("exportQueue.enqueueExport");
+    return { jobId: "j" };
+  },
+}));
 
 const API = join(__dirname, "..", "..", "..", "src", "app", "api");
 

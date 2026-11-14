@@ -233,7 +233,13 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
       where: { id: sessionId },
       select: { status: true },
     });
-    if (existingRow && SESSION_TERMINAL_STATUSES.has(existingRow.status)) {
+    // Wave 7: every enqueue path creates the row first, so a job without one
+    // was rolled back (enqueue after a failed create) or erased: run nothing.
+    if (!existingRow) {
+      console.log(`[AgentWorker] Session ${sessionId} has no row; the job does nothing`);
+      return;
+    }
+    if (SESSION_TERMINAL_STATUSES.has(existingRow.status)) {
       console.log(
         `[AgentWorker] Session ${sessionId} is already ${existingRow.status}; attempt ${job.attemptsMade + 1} does nothing`
       );
@@ -967,7 +973,10 @@ export async function processAgentJob(job: Job<AgentJobData>): Promise<void> {
     // rehydratable history for later /message continuations (fire-safe).
     // Once per session, not once per attempt (P1-14): a retry would append
     // the writer's message to the history a second time.
-    if (message && job.attemptsMade === 0) {
+    // Wave 7: attemptsStarted, not attemptsMade — a stalled job re-runs with
+    // attemptsMade still 0 (it never failed), but each start increments
+    // attemptsStarted (1 on the first run).
+    if (message && (job.attemptsStarted ?? (job.attemptsMade ?? 0) + 1) <= 1) {
       await addUserMessage(sessionId, message);
     }
 

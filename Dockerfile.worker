@@ -6,6 +6,21 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
 
+# Wave 7 / D22: exports run on the worker, so its runtime carries the same
+# converters and fonts as the web image (kept identical by a contract test).
+FROM base AS export-tools
+ENV TMPDIR=/tmp TEMP=/tmp TMP=/tmp
+RUN apk add --no-cache pandoc curl \
+    font-noto-cjk font-noto-naskh-arabic font-noto-arabic font-noto-devanagari
+# Typst: static musl binary from GitHub releases, checked against its sha256.
+ARG TYPST_VERSION=v0.13.0
+ARG TYPST_SHA256=cd1148da61d6844e62c330fc6222e988480acafe33b76daec8eb5d221258feb6
+RUN wget -qO /tmp/typst.tar.xz https://github.com/typst/typst/releases/download/${TYPST_VERSION}/typst-x86_64-unknown-linux-musl.tar.xz \
+    && echo "${TYPST_SHA256}  /tmp/typst.tar.xz" | sha256sum -c - \
+    && tar -xf /tmp/typst.tar.xz -C /tmp \
+    && mv /tmp/typst-x86_64-unknown-linux-musl/typst /usr/local/bin/ \
+    && rm -rf /tmp/typst*
+
 # P2-84: the runtime gets production dependencies only. devDependencies
 # (vitest, playwright, jsdom, eslint, the prisma CLI) carry advisories the
 # worker never loads, and ~100 MB.
@@ -13,6 +28,10 @@ FROM base AS prod-deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts
+# Wave 7 Task 5: the worker never loads Next (scripts/check-worker-deps.mjs
+# proves it on the compiled require graph), so its runtime drops Next, its
+# native SWC binaries and the Sentry Next SDK that would load it.
+RUN rm -rf node_modules/next node_modules/@next node_modules/@sentry/nextjs
 
 FROM base AS builder
 WORKDIR /app
@@ -26,7 +45,7 @@ RUN npx prisma generate
 # Compile worker with TypeScript and resolve path aliases
 RUN npx tsc --project tsconfig.worker.json && npx tsc-alias --project tsconfig.worker.json
 
-FROM base AS runner
+FROM export-tools AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 
@@ -44,6 +63,9 @@ COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 COPY --from=builder /app/src/generated ./src/generated
+
+# The export templates (Lua filters, reference DOCX, Typst template).
+COPY --from=builder /app/export-templates ./export-templates
 
 # Copy package.json for module resolution
 COPY --from=builder /app/package.json ./package.json

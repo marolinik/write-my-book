@@ -10,6 +10,8 @@ import { join } from "node:path";
 const h = vi.hoisted(() => ({
   getJob: vi.fn(),
   getWaiting: vi.fn(),
+  lpos: vi.fn(),
+  llen: vi.fn(),
   enqueue: vi.fn(),
   deleteSession: vi.fn(),
   updateSession: vi.fn(),
@@ -17,7 +19,12 @@ const h = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/queue/agent-queue", () => ({
-  agentQueue: { getJob: (id: string) => h.getJob(id), getWaiting: () => h.getWaiting() },
+  agentQueue: {
+    getJob: (id: string) => h.getJob(id),
+    getWaiting: () => h.getWaiting(),
+    keys: { wait: "bull:agent:wait" },
+    client: Promise.resolve({ lpos: h.lpos, llen: h.llen }),
+  },
   enqueueAgentJob: (data: unknown) => h.enqueue(data),
 }));
 vi.mock("@/lib/db", () => ({
@@ -34,15 +41,25 @@ beforeEach(() => {
 });
 
 describe("queuePosition", () => {
-  it("is the 1-based place in line of a waiting job", async () => {
-    h.getJob.mockResolvedValue({ getState: async () => "waiting" });
-    // BullMQ lists the newest waiting job first.
-    h.getWaiting.mockResolvedValue([{ id: "newest" }, { id: "s1" }, { id: "oldest" }]);
+  // The wait list holds the newest job at the head; the worker takes from the tail.
+  it("is the 1-based place in line of a waiting job, read in Redis (LPOS + LLEN)", async () => {
+    h.lpos.mockResolvedValue(1); // ["newest", "s1", "oldest"]
+    h.llen.mockResolvedValue(3);
     expect(await queuePosition("s1")).toBe(2);
+    expect(h.lpos).toHaveBeenCalledWith("bull:agent:wait", "s1");
   });
 
-  it("is null once the job is running", async () => {
-    h.getJob.mockResolvedValue({ getState: async () => "active" });
+  it("never loads the waiting jobs (Wave 7: O(N) per stream every 10 s)", async () => {
+    h.lpos.mockResolvedValue(0);
+    h.llen.mockResolvedValue(500);
+    expect(await queuePosition("s1")).toBe(500);
+    expect(h.getWaiting).not.toHaveBeenCalled();
+    expect(h.getJob).not.toHaveBeenCalled();
+  });
+
+  it("is null once the job is running (or gone)", async () => {
+    h.lpos.mockResolvedValue(null);
+    h.llen.mockResolvedValue(2);
     expect(await queuePosition("s1")).toBeNull();
   });
 });

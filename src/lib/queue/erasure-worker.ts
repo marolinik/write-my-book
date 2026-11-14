@@ -27,6 +27,42 @@ function isMissing(error: unknown): boolean {
   return (error as { code?: string } | null)?.code === "resource_missing";
 }
 
+/**
+ * The per-session Redis keys the app writes (`session:{id}:<suffix>`); a
+ * contract test keeps this list in step with the code that writes them.
+ */
+export const SESSION_KEY_SUFFIXES = ["status", "messages", "cancel"] as const;
+
+const APPROVAL_SCAN_COUNT = 500;
+
+/**
+ * Wave 7: approval keys live at `approval:{approvalId}` with the owning
+ * session inside the value (a "modify" decision carries the writer's words),
+ * so they are found by SCAN, not by session id.
+ */
+async function deleteApprovalsOf(redis: ReturnType<typeof getAppConnection>, sessionIds: Set<string>): Promise<void> {
+  if (sessionIds.size === 0) return;
+  let cursor = "0";
+  do {
+    const [next, keys] = await redis.scan(cursor, "MATCH", "approval:*", "COUNT", APPROVAL_SCAN_COUNT);
+    cursor = next;
+    if (keys.length === 0) continue;
+    const values = await redis.mget(...keys);
+    const owned = keys.filter((_, i) => sessionIds.has(approvalSessionId(values[i])));
+    if (owned.length > 0) await redis.del(...owned);
+  } while (cursor !== "0");
+}
+
+function approvalSessionId(raw: string | null | undefined): string {
+  if (!raw) return "";
+  try {
+    const parsed = JSON.parse(raw) as { sessionId?: unknown };
+    return typeof parsed.sessionId === "string" ? parsed.sessionId : "";
+  } catch {
+    return "";
+  }
+}
+
 /** Every store a deleted account leaves data in, keyed so a retry can skip what is done. */
 function stepsFor(row: ErasureRow): Step[] {
   const steps: Step[] = [];
@@ -50,18 +86,22 @@ function stepsFor(row: ErasureRow): Step[] {
     run: async () => {
       const redis = getAppConnection();
       for (const sessionId of row.sessionIds) {
-        const keys = await redis.keys(`session:${sessionId}:*`);
-        await redis.del(...keys, `approval:${sessionId}`);
+        // Wave 7: the session's keys by name (no KEYS, which blocks Redis).
+        await redis.del(...SESSION_KEY_SUFFIXES.map((suffix) => `session:${sessionId}:${suffix}`));
         const job = await agentQueue.getJob(sessionId);
         if (job) await job.remove();
       }
+      await deleteApprovalsOf(redis, new Set(row.sessionIds));
     },
   });
   steps.push({
     // P2-39: the customer holds the name, email and card fingerprint.
     store: "stripe",
     run: async () => {
-      if (!row.stripeCustomerId || !stripe) return;
+      if (!row.stripeCustomerId) return;
+      // Wave 7: a customer we cannot reach is not erased; the step stays
+      // open (and lastError says why) until Stripe is configured.
+      if (!stripe) throw new Error("stripe is not configured; the customer was not deleted");
       try {
         await stripe.customers.del(row.stripeCustomerId);
       } catch (error) {

@@ -1,4 +1,4 @@
-import { test, expect, createBookViaApi } from "./fixtures";
+import { test, expect } from "./fixtures";
 
 /**
  * API Key CRUD E2E Tests
@@ -10,11 +10,16 @@ import { test, expect, createBookViaApi } from "./fixtures";
  * - Adding real keys (skipped without env var)
  * - Last-key deletion protection
  * - Usage endpoint shape validation
+ *
+ * P2-67 (Wave 7): no serial mode and no shared key id. The last-key test
+ * runs as its own persona (user_qa_keys), seeded with exactly one key by
+ * global-setup, instead of depending on what earlier tests left behind.
  */
-test.describe("API Key Management", () => {
-  test.describe.configure({ mode: "serial" });
 
-  let storedKeyId: string | null = null;
+/** The persona global-setup seeds with exactly one API key. */
+const LAST_KEY_PERSONA = { "x-e2e-clerk-id": "user_qa_keys" };
+
+test.describe("API Key Management", () => {
 
   // ─── Test 1: List keys (initial state) ──────────────────────
   test("GET /api/settings/api-keys returns 200 with array", async ({
@@ -53,8 +58,7 @@ test.describe("API Key Management", () => {
     // Key validation should fail — provider rejects fake key.
     // Under the local-LLM overlay (WMB_LLM_FORCE_LOCAL=1) validation is
     // performed by the local gateway, which accepts any key by design (the
-    // key is never used upstream) — storing then SUCCEEDS, and the rest of
-    // this serial suite (last-key protection) keeps working on the stored key.
+    // key is never used upstream) — storing then SUCCEEDS.
     if (process.env.WMB_LLM_FORCE_LOCAL === "1") {
       expect([200, 201]).toContain(res.status());
       const data = await res.json();
@@ -138,46 +142,31 @@ test.describe("API Key Management", () => {
     expect(data.maskedKey).not.toBe(realKey);
     expect(data.maskedKey).toContain("*");
 
-    storedKeyId = data.id;
-
     // Verify key appears in list
     const listRes = await request.get("/api/settings/api-keys");
     expect(listRes.ok()).toBeTruthy();
     const list = await listRes.json();
-    const found = list.find(
-      (k: { id: string }) => k.id === storedKeyId
-    );
+    const found = list.find((k: { id: string }) => k.id === data.id);
     expect(found).toBeTruthy();
     expect(found.provider).toBe("anthropic");
     expect(found.maskedKey).toContain("*");
   });
 
   // ─── Test 6: Delete last key protection ─────────────────────
-  test("DELETE last API key returns 400 with protection message", async ({
-    request,
-  }) => {
-    // This test only works if exactly 1 key exists
-    const listRes = await request.get("/api/settings/api-keys");
-    if (!listRes.ok()) {
-      test.skip(true, "Auth not available");
-      return;
-    }
-
+  test("DELETE last API key returns 400 with protection message", async ({ request }) => {
+    const listRes = await request.get("/api/settings/api-keys", { headers: LAST_KEY_PERSONA });
+    expect(listRes.ok()).toBeTruthy();
     const keys = await listRes.json();
-    test.skip(
-      keys.length !== 1,
-      `Expected exactly 1 key for last-key test, found ${keys.length}`
-    );
+    expect(keys).toHaveLength(1);
 
-    const keyId = keys[0].id;
-    const deleteRes = await request.delete(
-      `/api/settings/api-keys/${keyId}`
-    );
-
+    const deleteRes = await request.delete(`/api/settings/api-keys/${keys[0].id}`, { headers: LAST_KEY_PERSONA });
     expect(deleteRes.status()).toBe(400);
-    const data = await deleteRes.json();
     // Wave 4 review I-1: the refusal carries a stable code the client localizes.
-    expect(data.code).toBe("LAST_API_KEY");
+    expect((await deleteRes.json()).code).toBe("LAST_API_KEY");
+
+    // The key is still there.
+    const after = await request.get("/api/settings/api-keys", { headers: LAST_KEY_PERSONA });
+    expect(await after.json()).toHaveLength(1);
   });
 
   // ─── Test 7: Usage endpoint returns expected shape ──────────

@@ -1,7 +1,23 @@
 import { test as base, type APIRequestContext } from "@playwright/test";
 
-export const test = base.extend({
-  // Add custom fixtures here as needed
+/** A book this test owns: created on first use, never shared with another test. */
+export interface TestBook {
+  id: string;
+  name: string;
+}
+
+/**
+ * P2-67 (Wave 7): per-test fixtures instead of serial specs sharing
+ * module-level ids, so one failure no longer skips the rest of a journey and
+ * a retry re-runs one test, not the whole group. Fixtures are lazy: a test
+ * that does not name `book` creates nothing.
+ */
+export const test = base.extend<{ book: TestBook }>({
+  // `provide` is Playwright's `use`; named so the React hooks lint rule does not read it as React.use.
+  book: async ({ request }, provide, testInfo) => {
+    const book = await createBookViaApi(request, { name: uniqueName(testInfo.title.slice(0, 40)) });
+    await provide(book);
+  },
 });
 
 export { expect } from "@playwright/test";
