@@ -101,7 +101,7 @@ describe("a save in flight (Wave 7: same-stamp self-409)", () => {
   it("the outgoing snapshot waits for the in-flight PUT and carries the version it produced", async () => {
     const put = deferred<{ version: number }>();
     const ref: InFlightSaveRef = { current: null };
-    trackInFlightSave(ref, put.promise);
+    trackInFlightSave(ref, put.promise, "chA");
     const save = vi.fn().mockResolvedValue({ version: 9 });
     const snapshot = capturePendingSave(DIRTY, "typed text");
     const flushing = flushPendingSave(snapshot, save, ref.current);
@@ -114,7 +114,7 @@ describe("a save in flight (Wave 7: same-stamp self-409)", () => {
   it("keeps the captured version when the in-flight PUT failed", async () => {
     const put = deferred<{ version: number }>();
     const ref: InFlightSaveRef = { current: null };
-    trackInFlightSave(ref, put.promise);
+    trackInFlightSave(ref, put.promise, "chA");
     const save = vi.fn().mockResolvedValue({ version: 8 });
     const flushing = flushPendingSave(capturePendingSave(DIRTY, "typed text"), save, ref.current);
     put.reject(new Error("offline"));
@@ -125,12 +125,22 @@ describe("a save in flight (Wave 7: same-stamp self-409)", () => {
   it("trackInFlightSave holds the request until it settles, then clears", async () => {
     const put = deferred<{ version: number }>();
     const ref: InFlightSaveRef = { current: null };
-    trackInFlightSave(ref, put.promise);
+    trackInFlightSave(ref, put.promise, "chA");
     expect(ref.current).not.toBeNull();
     put.resolve({ version: 8 });
-    expect(await ref.current).toBe(8);
+    expect(await ref.current?.settled).toBe(8);
     await Promise.resolve();
     expect(ref.current).toBeNull();
+  });
+
+  it("an in-flight PUT of ANOTHER chapter is neither awaited nor stamped onto this snapshot (Wave 7 review)", async () => {
+    const put = deferred<{ version: number }>();
+    const ref: InFlightSaveRef = { current: null };
+    trackInFlightSave(ref, put.promise, "chOther");
+    const save = vi.fn().mockResolvedValue({ version: 8 });
+    expect(await flushPendingSave(capturePendingSave(DIRTY, "typed text"), save, ref.current)).toBe("saved");
+    expect(save).toHaveBeenCalledWith(expect.objectContaining({ chapterId: "chA", documentVersion: 7 }));
+    put.resolve({ version: 99 });
   });
 
   it("the editor tracks every PUT and both flush paths wait on it", () => {
@@ -138,8 +148,8 @@ describe("a save in flight (Wave 7: same-stamp self-409)", () => {
       join(__dirname, "..", "..", "src", "components", "editor", "manuscript-editor.tsx"),
       "utf8"
     );
-    expect(editor).toMatch(/trackInFlightSave\(inFlightSaveRef,/);
+    expect(editor).toMatch(/trackInFlightSave\(inFlightSaveRef, request, dispatchedChapterId\)/);
     expect(editor).toMatch(/flushPendingSave\(snapshot, saveSnapshotRef\.current, inFlightSaveRef\.current\)/);
-    expect(editor).toMatch(/await inFlightSaveRef\.current;/);
+    expect(editor).toMatch(/await inFlightSaveRef\.current\?\.settled;/);
   });
 });

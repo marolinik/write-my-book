@@ -147,9 +147,20 @@ async function handleStructuredImport(
 
       const existingDoc = await docService.findByType(DocumentType.CHAPTER_CONTENT, ch.number);
       if (existingDoc) {
+        // Registered BEFORE the update: it writes the content, then the title,
+        // and can fail between them. The undo restores only what changed, and
+        // the title too (restoreVersion restores content only).
+        const prior = { id: existingDoc.id, version: existingDoc.currentVersion, title: existingDoc.title };
+        undo.push(async () => {
+          const now = await db.document.findFirst({
+            where: { id: prior.id },
+            select: { currentVersion: true, title: true },
+          });
+          if (!now) return;
+          if (now.currentVersion !== prior.version) await docService.restoreVersion(prior.id, prior.version);
+          if (now.title !== prior.title) await db.document.update({ where: { id: prior.id }, data: { title: prior.title } });
+        });
         await docService.update(existingDoc.id, ch.content, ch.title, "import", "import");
-        const priorVersion = existingDoc.currentVersion;
-        undo.push(() => docService.restoreVersion(existingDoc.id, priorVersion));
       } else {
         const created = await docService.create(
           DocumentType.CHAPTER_CONTENT,
@@ -161,10 +172,6 @@ async function handleStructuredImport(
         );
         undo.push(() => docService.delete(created.id));
       }
-      undo.push(() =>
-        priorRow ? db.chapter.update({ where: rowKey, data: priorRow }) : db.chapter.delete({ where: rowKey })
-      );
-
       if (ch.action === "create") {
         await db.chapter.upsert({
           where: { bookId_chapterNumber: { bookId, chapterNumber: ch.number } },
@@ -196,6 +203,11 @@ async function handleStructuredImport(
         });
         replacedCount++;
       }
+      // Registered AFTER the row write: a row that was never written has
+      // nothing to undo (deleting it would fail and misreport a partial import).
+      undo.push(() =>
+        priorRow ? db.chapter.update({ where: rowKey, data: priorRow }) : db.chapter.delete({ where: rowKey })
+      );
       totalWordCount += wordCount;
       imported.push(ch.number);
     }

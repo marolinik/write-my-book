@@ -1,7 +1,7 @@
 import { UnrecoverableError, type Job } from "bullmq";
 import { ExportConversionError } from "@/lib/import-export/export-pipeline";
 import { runBookExport, runSeriesExport, type ExportResult } from "@/lib/import-export/run-export";
-import { releaseExportSlot, type ExportJobData } from "@/lib/queue/export-queue";
+import { refreshExportSlot, releaseExportSlot, type ExportJobData } from "@/lib/queue/export-queue";
 
 /** The failure codes a job reports; its reason never carries internal text. */
 export const EXPORT_FAILURE_CODES = ["CONVERSION_FAILED", "EXPORT_FAILED"] as const;
@@ -15,7 +15,12 @@ export type ExportFailureCode = (typeof EXPORT_FAILURE_CODES)[number];
  */
 export async function processExportJob(job: Job<ExportJobData>): Promise<ExportResult> {
   const { kind, userId, targetId, request } = job.data;
+  const jobId = String(job.id);
   try {
+    // The slot was sized for waiting in the queue; running, it lasts one run.
+    await refreshExportSlot(userId, jobId).catch((error) =>
+      console.error(`[ExportWorker] could not refresh the export slot of ${userId}:`, error)
+    );
     return kind === "book"
       ? await runBookExport(userId, targetId, request)
       : await runSeriesExport(userId, targetId, request);
@@ -25,7 +30,7 @@ export async function processExportJob(job: Job<ExportJobData>): Promise<ExportR
     console.error(`[ExportWorker] ${kind} export ${job.id} failed (${code}):`, error);
     throw new UnrecoverableError(code);
   } finally {
-    await releaseExportSlot(userId).catch((error) =>
+    await releaseExportSlot(userId, jobId).catch((error) =>
       console.error(`[ExportWorker] could not free the export slot of ${userId}:`, error)
     );
   }

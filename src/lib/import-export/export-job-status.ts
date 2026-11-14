@@ -14,9 +14,11 @@ export async function exportJobStatus(kind: ExportJobData["kind"], targetId: str
   try {
     const user = await requireUser();
     const job = await readOwnExportJob(jobId, user.id, kind, targetId);
-    if (!job) return NextResponse.json({ error: "Export not found" }, { status: 404 });
+    if (!job) return NextResponse.json({ error: "Export not found", code: "EXPORT_FAILED" }, { status: 404 });
 
     const state = await job.getState();
+    // Removed between the lookup and the state read: gone, not "queued".
+    if (state === "unknown") return NextResponse.json({ error: "Export not found", code: "EXPORT_FAILED" }, { status: 404 });
     if (state === "completed") return NextResponse.json({ state, result: job.returnvalue });
     if (state === "failed") {
       return NextResponse.json({ state, code: exportFailureCode(job.failedReason) });

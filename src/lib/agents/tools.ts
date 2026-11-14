@@ -1574,25 +1574,40 @@ async function executeWriteChapter(
   // proposal; the writer reads it beside the chapter on the Structure tab and
   // applies it (the apply refuses if the chapter changed since) or rejects it.
   if (existing && chapter.wordCount > 0 && ctx.interactive !== true) {
-    await db.structureMove.create({
-      data: {
-        bookId: ctx.bookId,
-        sessionId: ctx.sessionId,
-        kind: "rewrite",
-        payload: JSON.stringify({ kind: "rewrite", chapterId: chapter.id, chapterNumber: input.chapterNumber }),
-        reason: "",
-        status: "drafted",
-        draft: markdown,
-        draftMeta: JSON.stringify({
-          baseDocId: existing.id,
-          baseVersion: existing.currentVersion,
-          baseWords: chapter.wordCount,
-          draftWords: countWords(markdown),
-          model: ctx.agentType,
-          draftedAt: new Date().toISOString(),
-        }),
-      },
+    const payload = JSON.stringify({ kind: "rewrite", chapterId: chapter.id, chapterNumber: input.chapterNumber });
+    const draftMeta = JSON.stringify({
+      baseDocId: existing.id,
+      baseVersion: existing.currentVersion,
+      baseWords: chapter.wordCount,
+      draftWords: countWords(markdown),
+      model: ctx.agentType,
+      draftedAt: new Date().toISOString(),
     });
+    // Wave 7 review: a retried job keeps its session id; its draft of this
+    // chapter replaces the earlier attempt's instead of filing a second one.
+    const earlier = await db.structureMove.findFirst({
+      where: { bookId: ctx.bookId, sessionId: ctx.sessionId, kind: "rewrite", status: "drafted", payload },
+      select: { id: true },
+    });
+    if (earlier) {
+      await db.structureMove.updateMany({
+        where: { id: earlier.id, status: "drafted" },
+        data: { draft: markdown, draftMeta },
+      });
+    } else {
+      await db.structureMove.create({
+        data: {
+          bookId: ctx.bookId,
+          sessionId: ctx.sessionId,
+          kind: "rewrite",
+          payload,
+          reason: "",
+          status: "drafted",
+          draft: markdown,
+          draftMeta,
+        },
+      });
+    }
     return (
       `Chapter ${input.chapterNumber} already holds the writer's prose, and no one is present to approve replacing it. ` +
       `Your text was saved as a draft the writer will review on the Structure tab; nothing was overwritten.`

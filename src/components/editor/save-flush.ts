@@ -276,7 +276,7 @@ export type SaveSnapshot = (snapshot: PendingSaveSnapshot) => Promise<unknown>;
 export async function flushPendingSave(
   snapshot: PendingSaveSnapshot | null,
   save: SaveSnapshot,
-  inFlight: Promise<number | undefined> | null = null
+  inFlight: InFlightSave | null = null
 ): Promise<"saved" | "clean" | "failed"> {
   if (!snapshot) return "clean";
   try {
@@ -284,7 +284,9 @@ export async function flushPendingSave(
     // snapshot captured; sent alongside, the snapshot would 409 against it.
     // Wait for it and send against the version it produced. The store cannot
     // tell us: by now it belongs to the next chapter and drops that result.
-    const versionAfter = inFlight ? await inFlight : undefined;
+    // Only a PUT of THIS chapter moves this snapshot's version (Wave 7
+    // review): another chapter's PUT is neither awaited nor stamped.
+    const versionAfter = inFlight && inFlight.chapterId === snapshot.chapterId ? await inFlight.settled : undefined;
     await save(versionAfter === undefined ? snapshot : { ...snapshot, documentVersion: versionAfter });
     return "saved";
   } catch (error) {
@@ -293,9 +295,14 @@ export async function flushPendingSave(
   }
 }
 
-/** The pane's PUT in flight, resolving to the version it produced (undefined if it failed). */
+/** A pane's PUT in flight: its chapter, and the version it produced (undefined if it failed). */
+export interface InFlightSave {
+  chapterId: string | null;
+  settled: Promise<number | undefined>;
+}
+
 export interface InFlightSaveRef {
-  current: Promise<number | undefined> | null;
+  current: InFlightSave | null;
 }
 
 /**
@@ -303,14 +310,21 @@ export interface InFlightSaveRef {
  * instead of racing it with the same version stamp. Never rejects; clears
  * itself when it settles (unless a newer PUT has replaced it).
  */
-export function trackInFlightSave(ref: InFlightSaveRef, request: Promise<{ version?: number | null }>): void {
-  const settled = request.then(
-    (res) => res.version ?? undefined,
-    () => undefined
-  );
-  ref.current = settled;
-  void settled.then(() => {
-    if (ref.current === settled) ref.current = null;
+export function trackInFlightSave(
+  ref: InFlightSaveRef,
+  request: Promise<{ version?: number | null }>,
+  chapterId: string | null
+): void {
+  const entry: InFlightSave = {
+    chapterId,
+    settled: request.then(
+      (res) => res.version ?? undefined,
+      () => undefined
+    ),
+  };
+  ref.current = entry;
+  void entry.settled.then(() => {
+    if (ref.current === entry) ref.current = null;
   });
 }
 

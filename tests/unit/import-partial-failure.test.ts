@@ -9,6 +9,7 @@ const h = vi.hoisted(() => ({
   db: {
     book: { findFirst: vi.fn() },
     chapter: { findMany: vi.fn(), findUnique: vi.fn(), upsert: vi.fn(), update: vi.fn(), delete: vi.fn() },
+    document: { findFirst: vi.fn(), update: vi.fn() },
   },
   doc: { findByType: vi.fn(), update: vi.fn(), create: vi.fn(), restoreVersion: vi.fn(), delete: vi.fn() },
   reconcile: vi.fn(),
@@ -63,6 +64,8 @@ beforeEach(() => {
   h.doc.restoreVersion.mockResolvedValue({});
   h.reconcile.mockResolvedValue({ chapterCount: 1, wordCount: 4 });
   h.indexBatch.mockResolvedValue({ indexed: 0, skipped: 0, failed: 0 });
+  h.db.document.findFirst.mockResolvedValue(null);
+  h.db.document.update.mockResolvedValue({});
 });
 
 describe("structured import, failing on chapter 2 of 3", () => {
@@ -78,7 +81,11 @@ describe("structured import, failing on chapter 2 of 3", () => {
   });
 
   it("an existing chapter goes back to its previous version and row values", async () => {
-    h.doc.findByType.mockImplementation(async (_t: string, n: number) => (n === 1 ? { id: "doc1", currentVersion: 4 } : null));
+    h.doc.findByType.mockImplementation(async (_t: string, n: number) =>
+      n === 1 ? { id: "doc1", currentVersion: 4, title: "Old" } : null
+    );
+    // After the import's update: version 5, the imported title.
+    h.db.document.findFirst.mockResolvedValue({ currentVersion: 5, title: "T1" });
     h.db.chapter.findUnique.mockImplementation(async ({ where }: { where: { bookId_chapterNumber: { chapterNumber: number } } }) =>
       where.bookId_chapterNumber.chapterNumber === 1
         ? { title: "Old", wordCount: 900, status: "drafted", importedAt: null }
@@ -103,5 +110,41 @@ describe("structured import, failing on chapter 2 of 3", () => {
     h.doc.delete.mockRejectedValue(new Error("s3 down"));
     const res = await confirm({ actNumber: 1, chapters: [row(1), row(2), row(3)] });
     expect(await res.json()).toMatchObject({ code: "IMPORT_PARTIAL", imported: [1] });
+  });
+});
+
+describe("Wave 7 review: undo exactly what was written", () => {
+  it("a row write that fails after its document undoes the document and still says nothing was changed", async () => {
+    h.doc.create.mockImplementation(async (_t: string, content: string) => ({ id: `d-${content.slice(-1)}` }));
+    h.db.chapter.upsert.mockRejectedValueOnce(new Error("db connection reset"));
+    const res = await confirm({ actNumber: 1, chapters: [row(1), row(2)] });
+    expect(await res.json()).toMatchObject({ code: "IMPORT_ROLLED_BACK", imported: [] });
+    expect(h.doc.delete).toHaveBeenCalledWith("d-1");
+    // The row was never written: nothing to delete.
+    expect(h.db.chapter.delete).not.toHaveBeenCalled();
+  });
+
+  it("an update that fails after writing the content is undone, and the document title goes back too", async () => {
+    h.doc.findByType.mockImplementation(async (_t: string, n: number) =>
+      n === 1 ? { id: "doc1", currentVersion: 4, title: "Old title" } : null
+    );
+    h.doc.update.mockRejectedValueOnce(new Error("title write failed"));
+    h.db.document.findFirst.mockResolvedValue({ currentVersion: 5, title: "T1" });
+    const res = await confirm({ actNumber: 1, chapters: [row(1)] });
+    expect(await res.json()).toMatchObject({ code: "IMPORT_ROLLED_BACK", imported: [] });
+    expect(h.doc.restoreVersion).toHaveBeenCalledWith("doc1", 4);
+    expect(h.db.document.update).toHaveBeenCalledWith({ where: { id: "doc1" }, data: { title: "Old title" } });
+  });
+
+  it("an update that failed before changing anything restores nothing", async () => {
+    h.doc.findByType.mockImplementation(async (_t: string, n: number) =>
+      n === 1 ? { id: "doc1", currentVersion: 4, title: "Old title" } : null
+    );
+    h.doc.update.mockRejectedValueOnce(new Error("version conflict"));
+    h.db.document.findFirst.mockResolvedValue({ currentVersion: 4, title: "Old title" });
+    const res = await confirm({ actNumber: 1, chapters: [row(1)] });
+    expect(await res.json()).toMatchObject({ code: "IMPORT_ROLLED_BACK" });
+    expect(h.doc.restoreVersion).not.toHaveBeenCalled();
+    expect(h.db.document.update).not.toHaveBeenCalled();
   });
 });

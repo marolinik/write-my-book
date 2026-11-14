@@ -93,7 +93,10 @@ describe("a failed conversion", () => {
       runSeriesExport: vi.fn(),
     }));
     const released: string[] = [];
-    vi.doMock("@/lib/queue/export-queue", () => ({ releaseExportSlot: async (u: string) => void released.push(u) }));
+    vi.doMock("@/lib/queue/export-queue", () => ({
+      refreshExportSlot: async () => undefined,
+      releaseExportSlot: async (u: string, jobId: string) => void released.push(`${u}:${jobId}`),
+    }));
     vi.spyOn(console, "error").mockImplementation(() => {});
     const { processExportJob } = await import("@/lib/queue/export-worker");
     const failure = await processExportJob({
@@ -103,6 +106,6 @@ describe("a failed conversion", () => {
     expect((failure as Error).name).toBe("UnrecoverableError");
     expect((failure as Error).message).toBe("CONVERSION_FAILED");
     expect((failure as Error).message).not.toMatch(/tmp|YAML|pandoc/);
-    expect(released).toEqual(["u1"]);
+    expect(released).toEqual(["u1:j1"]);
   });
 });

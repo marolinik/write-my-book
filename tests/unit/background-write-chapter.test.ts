@@ -37,6 +37,7 @@ beforeEach(() => {
   vi.clearAllMocks();
   h.db.chapter.findFirst.mockResolvedValue({ id: "c3", chapterNumber: 3, actNumber: 1, wordCount: 1200 });
   h.db.structureMove.create.mockResolvedValue({ id: "m1" });
+  h.db.structureMove.findFirst.mockResolvedValue(null);
 });
 
 describe("WriteChapter in an unattended run", () => {
@@ -51,6 +52,19 @@ describe("WriteChapter in an unattended run", () => {
     expect(JSON.parse(data.draftMeta)).toMatchObject({ baseDocId: "doc3", baseVersion: 6, baseWords: 1200 });
     expect(out).toMatch(/draft/i);
     expect(out).toMatch(/nothing was overwritten/i);
+  });
+
+  it("a retried run (same session) replaces its own draft of the chapter instead of filing another (Wave 7 review)", async () => {
+    h.db.structureMove.findFirst.mockResolvedValue({ id: "m-earlier" });
+    h.db.structureMove.updateMany.mockResolvedValue({ count: 1 });
+    const c = ctx(false);
+    await executeTool("WriteChapter", c as never, { chapterNumber: 3, markdown: "The retry's version." });
+    expect(h.db.structureMove.create).not.toHaveBeenCalled();
+    const lookup = h.db.structureMove.findFirst.mock.calls[0][0].where;
+    expect(lookup).toMatchObject({ bookId: "b1", sessionId: "s1", kind: "rewrite", status: "drafted" });
+    const update = h.db.structureMove.updateMany.mock.calls[0][0];
+    expect(update.where).toMatchObject({ id: "m-earlier", status: "drafted" });
+    expect(update.data).toMatchObject({ draft: "The retry's version." });
   });
 
   it("an empty chapter is still written directly", async () => {

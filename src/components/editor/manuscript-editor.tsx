@@ -623,7 +623,7 @@ export function ManuscriptEditor({
         expectedVersion,
         keepalive: options?.keepalive,
       });
-      trackInFlightSave(inFlightSaveRef, request);
+      trackInFlightSave(inFlightSaveRef, request, dispatchedChapterId);
       const res = await request;
       if (isStale()) {
         paneStore.getState().setSaving(false);
@@ -775,7 +775,7 @@ export function ManuscriptEditor({
       registerPendingFlush(async () => {
         // Wave 7: let a PUT in flight land first; it moves the version the
         // save below must carry (saveContent reads it from the store).
-        await inFlightSaveRef.current;
+        await inFlightSaveRef.current?.settled;
         const s = paneStore.getState();
         if (!s.isDirty || s.saveConflict) return;
         if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
